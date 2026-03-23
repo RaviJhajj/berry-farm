@@ -2,504 +2,636 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>🫐 Berry Farm</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Berry Farm Manager</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ════════════════════════════════════════
+   DESIGN TOKENS
+════════════════════════════════════════ */
 :root {
-  --ink: #0f1a0d;
-  --page: #f4f0e8;
-  --surface: #ffffff;
-  --berry: #1e5c2e;
-  --berry2: #2d7a42;
-  --berry3: #52a86a;
-  --accent: #c8a84b;
-  --accent2: #e8c96a;
-  --muted: #7a8c78;
-  --border: #ddd8cc;
-  --danger: #c0392b;
-  --danger-bg: #fdf0ee;
-  --shadow: 0 2px 16px rgba(15,26,13,0.08);
-  --shadow-lg: 0 8px 40px rgba(15,26,13,0.14);
-  --r: 14px;
-  --r-sm: 8px;
-  --nav-h: 62px;
-  --tab-h: 50px;
+  --forest:    #1a4a28;
+  --forest2:   #256336;
+  --forest3:   #3a8a52;
+  --forest-lt: #e8f4ec;
+  --gold:      #b5882a;
+  --gold-lt:   #fdf6e3;
+  --ink:       #141a12;
+  --ink2:      #3d4a3a;
+  --muted:     #7a8870;
+  --page:      #f6f3ed;
+  --surface:   #ffffff;
+  --border:    #ddd8ce;
+  --border2:   #ccc5b8;
+  --danger:    #b33a2a;
+  --danger-lt: #fdf0ed;
+  --warn:      #c07020;
+  --warn-lt:   #fdf4e8;
+  --r:         12px;
+  --r-sm:      8px;
+  --r-xs:      5px;
+  --shadow:    0 1px 12px rgba(20,26,18,0.07);
+  --shadow-md: 0 4px 24px rgba(20,26,18,0.10);
+  --shadow-lg: 0 8px 40px rgba(20,26,18,0.14);
+  --nav-h:     58px;
+  --sidebar-w: 220px;
 }
+
+/* ── RESET ── */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden}
-body{font-family:'Epilogue',sans-serif;background:var(--page);color:var(--ink);font-size:15px;line-height:1.5}
+html,body{height:100%;font-size:15px}
+body{font-family:'DM Sans',sans-serif;background:var(--page);color:var(--ink);line-height:1.5;overflow:hidden}
 
-/* ── SCROLLABLE AREAS ── */
+/* ── SCROLL ── */
 .scroll{overflow-y:auto;-webkit-overflow-scrolling:touch}
-.scroll::-webkit-scrollbar{width:4px}
-.scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+.scroll::-webkit-scrollbar{width:5px}
+.scroll::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
-/* ── APP SHELL ── */
-#app{display:flex;flex-direction:column;height:100vh;max-width:480px;margin:0 auto;position:relative;background:var(--page)}
+/* ════════════════════════════════════════
+   APP SHELL — RESPONSIVE
+════════════════════════════════════════ */
+#app{display:flex;height:100vh;overflow:hidden;position:relative}
 
-/* ── TOP NAV ── */
-#top-nav{
-  background:var(--berry);
-  color:white;
-  display:flex;
-  align-items:center;
-  padding:0 16px;
+/* ── SIDEBAR (desktop) ── */
+#sidebar{
+  width:var(--sidebar-w);
+  background:var(--forest);
+  display:flex;flex-direction:column;
+  flex-shrink:0;
+  z-index:20;
+}
+.sidebar-brand{
+  padding:22px 20px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.1);
+}
+.sidebar-brand h1{
+  font-family:'Libre Baskerville',serif;
+  font-size:1.15rem;font-weight:700;
+  color:#fff;letter-spacing:-0.2px;line-height:1.2;
+}
+.sidebar-brand p{font-size:0.72rem;color:rgba(255,255,255,0.5);margin-top:2px}
+.sidebar-nav{padding:12px 10px;flex:1}
+.snav-btn{
+  display:flex;align-items:center;gap:10px;
+  width:100%;padding:11px 12px;
+  border:none;background:none;cursor:pointer;
+  border-radius:var(--r-sm);
+  color:rgba(255,255,255,0.65);
+  font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:500;
+  transition:all 0.15s;
+  text-align:left;
+}
+.snav-btn:hover{background:rgba(255,255,255,0.1);color:#fff}
+.snav-btn.active{background:rgba(255,255,255,0.15);color:#fff;font-weight:600}
+.snav-icon{font-size:1rem;width:20px;text-align:center;flex-shrink:0}
+
+/* ── MAIN AREA ── */
+#main{display:flex;flex-direction:column;flex:1;overflow:hidden;min-width:0}
+
+/* ── TOP BAR ── */
+#topbar{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 20px;
   height:var(--nav-h);
   flex-shrink:0;
-  position:relative;
-  z-index:50;
+  gap:10px;
+  z-index:10;
 }
-.nav-title{
-  font-family:'Syne',sans-serif;
-  font-size:1.25rem;
-  font-weight:800;
-  letter-spacing:-0.3px;
-  display:flex;align-items:center;gap:8px;
+#topbar-title{
+  font-family:'Libre Baskerville',serif;
+  font-size:1.1rem;font-weight:700;color:var(--ink);
   flex:1;
 }
-.nav-back{
-  background:rgba(255,255,255,0.18);
-  border:none;color:white;
-  padding:7px 14px;border-radius:999px;
-  font-family:'Epilogue',sans-serif;
-  font-size:0.82rem;font-weight:600;
-  cursor:pointer;
+.topbar-back{
+  background:var(--page);border:1px solid var(--border);
+  color:var(--ink);border-radius:var(--r-sm);
+  padding:7px 14px;font-size:0.82rem;font-weight:600;
+  cursor:pointer;font-family:'DM Sans',sans-serif;
   display:flex;align-items:center;gap:5px;
-  margin-right:10px;
   transition:background 0.15s;
 }
-.nav-back:hover{background:rgba(255,255,255,0.28)}
+.topbar-back:hover{background:var(--border)}
 
-/* ── BOTTOM NAV ── */
-#bottom-nav{
-  display:flex;
+/* ── MOBILE BOTTOM NAV ── */
+#mobile-nav{
+  display:none;
   background:var(--surface);
-  border-top:1.5px solid var(--border);
-  flex-shrink:0;
-  height:var(--nav-h);
-  z-index:50;
+  border-top:1px solid var(--border);
+  height:58px;flex-shrink:0;z-index:20;
 }
-.bnav-btn{
-  flex:1;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:3px;
-  background:none;border:none;cursor:pointer;
-  font-family:'Epilogue',sans-serif;
-  font-size:0.7rem;font-weight:500;
-  color:var(--muted);
-  transition:color 0.15s;
-  padding:8px 4px;
+.mnav-btn{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:2px;border:none;background:none;cursor:pointer;
+  color:var(--muted);font-family:'DM Sans',sans-serif;font-size:0.68rem;font-weight:500;
+  padding:6px 4px;transition:color 0.15s;
 }
-.bnav-btn.active{color:var(--berry)}
-.bnav-btn .icon{font-size:1.4rem;line-height:1}
+.mnav-btn.active{color:var(--forest)}
+.mnav-icon{font-size:1.25rem;line-height:1}
+
+/* ── CONTENT ── */
+#content{flex:1;overflow:hidden;display:flex;flex-direction:column;position:relative}
+.page{display:none;flex-direction:column;height:100%;overflow:hidden}
+.page.active{display:flex}
 
 /* ── TAB BAR ── */
 .tab-bar{
-  display:flex;
-  border-bottom:2px solid var(--border);
-  background:var(--surface);
-  flex-shrink:0;
-  overflow-x:auto;
-  scrollbar-width:none;
+  display:flex;background:var(--surface);
+  border-bottom:1px solid var(--border);
+  flex-shrink:0;overflow-x:auto;scrollbar-width:none;
 }
 .tab-bar::-webkit-scrollbar{display:none}
 .tab-btn{
-  flex:1;min-width:0;
-  padding:14px 8px 12px;
-  font-family:'Epilogue',sans-serif;
-  font-size:0.78rem;font-weight:600;
-  text-transform:uppercase;letter-spacing:0.05em;
-  color:var(--muted);
-  background:none;border:none;cursor:pointer;
-  border-bottom:2.5px solid transparent;
-  margin-bottom:-2px;
-  white-space:nowrap;
-  transition:all 0.15s;
+  flex:1;min-width:0;padding:14px 10px 12px;
+  font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.055em;
+  color:var(--muted);background:none;border:none;cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;
+  white-space:nowrap;transition:all 0.15s;
 }
-.tab-btn.active{color:var(--berry);border-bottom-color:var(--berry)}
+.tab-btn.active{color:var(--forest);border-bottom-color:var(--forest)}
 
-/* ── CONTENT ── */
-#content{flex:1;overflow:hidden;display:flex;flex-direction:column}
-.page{display:none;flex-direction:column;height:100%;overflow:hidden}
-.page.active{display:flex}
-.tab-panel{display:none;flex:1;overflow-y:auto;padding:16px;-webkit-overflow-scrolling:touch}
+.tab-panel{display:none;flex:1;overflow-y:auto;padding:20px;-webkit-overflow-scrolling:touch}
 .tab-panel.active{display:block}
 
 /* ── CARDS ── */
 .card{
-  background:var(--surface);
-  border-radius:var(--r);
-  box-shadow:var(--shadow);
-  border:1px solid var(--border);
-  padding:18px;
-  margin-bottom:14px;
+  background:var(--surface);border-radius:var(--r);
+  box-shadow:var(--shadow);border:1px solid var(--border);
+  padding:18px;margin-bottom:14px;
 }
 .card-title{
-  font-family:'Syne',sans-serif;
-  font-size:0.9rem;font-weight:700;
-  text-transform:uppercase;letter-spacing:0.08em;
-  color:var(--berry);margin-bottom:14px;
+  font-family:'Libre Baskerville',serif;
+  font-size:0.88rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.07em;
+  color:var(--forest);margin-bottom:14px;
   display:flex;align-items:center;justify-content:space-between;
 }
 
-/* ── STAT ROW ── */
-.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+/* ── STATS GRID ── */
+.stats-grid{display:grid;gap:10px;margin-bottom:14px}
+.stats-3{grid-template-columns:repeat(3,1fr)}
+.stats-2{grid-template-columns:repeat(2,1fr)}
+.stats-4{grid-template-columns:repeat(4,1fr)}
 .stat-box{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--r-sm);
-  padding:14px 10px;text-align:center;
+  background:var(--page);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:14px 10px;text-align:center;
 }
 .stat-box .sv{
-  font-family:'Syne',sans-serif;
-  font-size:1.4rem;font-weight:800;
-  color:var(--berry);line-height:1;
+  font-family:'Libre Baskerville',serif;
+  font-size:1.4rem;font-weight:700;color:var(--forest);line-height:1;
 }
-.stat-box .sl{font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-top:3px}
+.stat-box .sl{font-size:0.67rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;margin-top:4px}
 
 /* ── DATE NAV ── */
 .date-nav{
   display:flex;align-items:center;justify-content:space-between;
-  background:var(--surface);
-  border-radius:var(--r);
-  border:1px solid var(--border);
-  padding:12px 16px;
-  margin-bottom:14px;
+  background:var(--surface);border-radius:var(--r);
+  border:1px solid var(--border);padding:11px 14px;margin-bottom:14px;gap:8px;
 }
-.date-nav .dn-label{
-  font-family:'Syne',sans-serif;
-  font-size:1rem;font-weight:700;
-  color:var(--ink);text-align:center;
+.dn-center{display:flex;flex-direction:column;align-items:center;flex:1;min-width:0;gap:2px}
+.dn-label{
+  font-family:'Libre Baskerville',serif;
+  font-size:1rem;font-weight:700;color:var(--ink);
+  cursor:pointer;display:flex;align-items:center;gap:5px;
 }
-.dn-sub{font-size:0.75rem;color:var(--muted);font-weight:400;font-family:'Epilogue',sans-serif}
+.dn-label:hover .dn-cal-icon{opacity:1}
+.dn-cal-icon{font-size:0.85rem;opacity:0.4;transition:opacity 0.15s}
+.dn-sub{font-size:0.72rem;color:var(--muted)}
+.dn-input{
+  position:absolute;opacity:0;pointer-events:none;width:1px;height:1px;border:none;padding:0;
+}
+.dn-input-visible{
+  position:static!important;opacity:1!important;pointer-events:all!important;
+  width:auto!important;height:auto!important;
+  padding:4px 8px;border:1px solid var(--border2);border-radius:var(--r-xs);
+  font-size:0.82rem;margin-top:4px;display:block;
+}
 .dn-btn{
-  background:var(--page);border:1px solid var(--border);
-  color:var(--ink);border-radius:999px;
-  width:34px;height:34px;
+  background:var(--page);border:1px solid var(--border);color:var(--ink);
+  border-radius:var(--r-sm);width:32px;height:32px;
   display:flex;align-items:center;justify-content:center;
-  cursor:pointer;font-size:1rem;
-  transition:background 0.15s;
-  flex-shrink:0;
+  cursor:pointer;font-size:0.9rem;font-weight:700;
+  transition:background 0.12s;flex-shrink:0;
+  font-family:'DM Sans',sans-serif;
 }
 .dn-btn:hover{background:var(--border)}
+.dn-btn:disabled{opacity:0.3;cursor:default}
 
-/* ── PICKER ROW ── */
-.picker-row{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 16px;
-  background:var(--surface);
-  border-radius:var(--r-sm);
-  border:1px solid var(--border);
-  margin-bottom:9px;
-  cursor:pointer;
-  transition:all 0.15s;
-  gap:10px;
+/* ── SELECT WRAPPER (custom arrow) ── */
+.select-wrap{position:relative}
+.select-wrap select{padding-right:32px}
+.select-wrap::after{
+  content:'';
+  position:absolute;right:12px;top:50%;
+  transform:translateY(-50%);
+  border-left:5px solid transparent;border-right:5px solid transparent;
+  border-top:6px solid var(--muted);pointer-events:none;
 }
-.picker-row:hover{border-color:var(--berry3);box-shadow:0 2px 8px rgba(30,92,46,0.1)}
-.picker-row .pr-name{font-weight:600;font-size:0.95rem}
-.picker-row .pr-sub{font-size:0.75rem;color:var(--muted);margin-top:1px}
-.picker-row .pr-right{text-align:right;flex-shrink:0}
-.picker-row .pr-lbs{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;color:var(--berry)}
-.picker-row .pr-pay{font-size:0.75rem;color:var(--muted)}
+
+/* ── FORMS ── */
+.form-group{margin-bottom:14px}
+label.fl{
+  display:block;font-size:0.72rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.08em;
+  color:var(--muted);margin-bottom:5px;
+}
+input,select,textarea{
+  width:100%;padding:11px 13px;
+  border:1px solid var(--border2);border-radius:var(--r-sm);
+  font-family:'DM Sans',sans-serif;font-size:0.94rem;color:var(--ink);
+  background:white;transition:border-color 0.15s;
+  -webkit-appearance:none;appearance:none;
+}
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--forest3);
+  box-shadow:0 0 0 3px rgba(58,138,82,0.12);
+}
+input[readonly]{background:var(--page);color:var(--ink2)}
+textarea{resize:vertical;min-height:68px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-row-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 
 /* ── BUTTONS ── */
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:12px 20px;border-radius:999px;
-  font-family:'Epilogue',sans-serif;font-size:0.9rem;font-weight:600;
-  cursor:pointer;border:none;transition:all 0.18s;
-  text-decoration:none;
+  padding:11px 20px;border-radius:var(--r-sm);
+  font-family:'DM Sans',sans-serif;font-size:0.88rem;font-weight:600;
+  cursor:pointer;border:none;transition:all 0.16s;letter-spacing:0.01em;
 }
-.btn-primary{background:var(--berry);color:white;width:100%}
-.btn-primary:hover{background:var(--berry2)}
-.btn-accent{background:var(--accent);color:var(--ink);width:100%}
-.btn-accent:hover{background:var(--accent2)}
-.btn-ghost{background:var(--page);color:var(--ink);border:1.5px solid var(--border)}
+.btn-primary{background:var(--forest);color:#fff;width:100%}
+.btn-primary:hover{background:var(--forest2)}
+.btn-ghost{background:var(--page);color:var(--ink);border:1px solid var(--border2)}
 .btn-ghost:hover{background:var(--border)}
-.btn-danger{background:var(--danger-bg);color:var(--danger);border:1.5px solid #f5c6c6}
-.btn-danger:hover{background:#fad7d4}
-.btn-sm{padding:7px 14px;font-size:0.78rem}
+.btn-danger{background:var(--danger-lt);color:var(--danger);border:1px solid #f0c0b8}
+.btn-danger:hover{background:#fad8d2}
+.btn-warn{background:var(--warn-lt);color:var(--warn);border:1px solid #f0d0a0}
+.btn-sm{padding:7px 13px;font-size:0.78rem}
+.btn-full{width:100%}
 .btn-add{
   display:flex;align-items:center;justify-content:center;gap:8px;
-  padding:14px;border-radius:var(--r);
-  border:2px dashed var(--berry3);color:var(--berry);
-  background:rgba(30,92,46,0.04);
-  cursor:pointer;font-family:'Epilogue',sans-serif;
-  font-weight:600;font-size:0.9rem;
-  transition:all 0.15s;width:100%;margin-bottom:14px;
+  padding:13px;border-radius:var(--r);
+  border:1.5px dashed var(--forest3);color:var(--forest);
+  background:rgba(58,138,82,0.04);cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-weight:600;font-size:0.88rem;
+  transition:all 0.14s;width:100%;margin-bottom:14px;
 }
-.btn-add:hover{background:rgba(30,92,46,0.08);border-style:solid}
+.btn-add:hover{background:rgba(58,138,82,0.09);border-style:solid}
 
-/* ── FORMS ── */
-.form-group{margin-bottom:14px}
-label.fl{display:block;font-size:0.74rem;font-weight:600;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted);margin-bottom:5px}
-input,select,textarea{
-  width:100%;padding:12px 14px;
-  border:1.5px solid var(--border);border-radius:var(--r-sm);
-  font-family:'Epilogue',sans-serif;font-size:0.95rem;color:var(--ink);
-  background:white;transition:border-color 0.15s;
-  -webkit-appearance:none;
+/* ── ACTION BUTTONS (text, no emoji) ── */
+.act-btn{
+  padding:5px 11px;border-radius:var(--r-xs);
+  font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:600;
+  cursor:pointer;border:1px solid transparent;transition:all 0.12s;white-space:nowrap;
 }
-input:focus,select:focus,textarea:focus{outline:none;border-color:var(--berry3);box-shadow:0 0 0 3px rgba(30,92,46,0.1)}
-textarea{resize:vertical;min-height:70px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.act-edit{background:var(--page);color:var(--ink2);border-color:var(--border)}
+.act-edit:hover{background:var(--border);color:var(--ink)}
+.act-del{background:var(--danger-lt);color:var(--danger);border-color:#f0c0b8}
+.act-del:hover{background:#fad8d2}
+.act-archive{background:var(--warn-lt);color:var(--warn);border-color:#f0d0a0}
+.act-archive:hover{background:#fae0b8}
+.act-restore{background:var(--forest-lt);color:var(--forest);border-color:#c0dfc8}
+.act-restore:hover{background:#d8eedd}
 
 /* ── LOG ITEM ── */
 .log-item{
+  display:flex;align-items:center;padding:12px 14px;
+  background:var(--page);border-radius:var(--r-sm);
+  border:1px solid var(--border);margin-bottom:8px;gap:10px;
+  cursor:pointer;transition:background 0.12s;
+}
+.log-item:hover{background:#eceae4}
+.li-main{flex:1;min-width:0}
+.li-time{font-size:0.7rem;color:var(--muted);font-weight:600;font-family:'Libre Baskerville',serif;text-transform:uppercase;letter-spacing:0.06em}
+.li-val{font-family:'Libre Baskerville',serif;font-size:1rem;font-weight:700;color:var(--forest);white-space:nowrap;flex-shrink:0}
+.li-note{font-size:0.76rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px}
+.li-actions{display:flex;gap:5px;flex-shrink:0}
+
+/* ── PICKER CARD ── */
+.picker-row{
   display:flex;align-items:center;justify-content:space-between;
-  padding:12px 14px;
-  background:var(--page);
-  border-radius:var(--r-sm);
-  border:1px solid var(--border);
-  margin-bottom:8px;
-  gap:8px;
-  cursor:pointer;
-  transition:background 0.12s;
+  padding:14px 16px;background:var(--surface);
+  border-radius:var(--r-sm);border:1px solid var(--border);
+  margin-bottom:9px;cursor:pointer;transition:all 0.12s;gap:10px;
 }
-.log-item:hover{background:var(--border)}
-.log-item .li-main{flex:1;min-width:0}
-.log-item .li-time{font-size:0.72rem;color:var(--muted);font-family:'Syne',sans-serif;font-weight:600}
-.log-item .li-lbs{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--berry);white-space:nowrap}
-.log-item .li-note{font-size:0.78rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.log-item .li-actions{display:flex;gap:6px;flex-shrink:0}
-.icon-btn{
-  background:none;border:none;cursor:pointer;
-  font-size:1rem;padding:6px;border-radius:6px;
-  transition:background 0.12s;color:var(--muted);
-}
-.icon-btn:hover{background:var(--border);color:var(--ink)}
-.icon-btn.del:hover{background:var(--danger-bg);color:var(--danger)}
-
-/* ── MODAL OVERLAY ── */
-.overlay{
-  position:fixed;inset:0;background:rgba(15,26,13,0.55);
-  z-index:200;display:flex;align-items:flex-end;
-  opacity:0;pointer-events:none;transition:opacity 0.25s;
-}
-.overlay.open{opacity:1;pointer-events:all}
-.sheet{
-  width:100%;max-width:480px;margin:0 auto;
-  background:var(--surface);
-  border-radius:24px 24px 0 0;
-  max-height:92vh;overflow-y:auto;
-  transform:translateY(100%);transition:transform 0.3s cubic-bezier(.32,.72,0,1);
-  padding:0 20px 40px;
-}
-.overlay.open .sheet{transform:translateY(0)}
-.sheet-handle{width:40px;height:4px;background:var(--border);border-radius:2px;margin:14px auto 20px}
-.sheet-title{font-family:'Syne',sans-serif;font-size:1.15rem;font-weight:800;color:var(--berry);margin-bottom:20px}
-
-/* ── CONFIRM MODAL ── */
-.confirm-modal{
-  position:fixed;inset:0;background:rgba(15,26,13,0.55);
-  z-index:300;display:flex;align-items:center;justify-content:center;
-  padding:20px;
-  opacity:0;pointer-events:none;transition:opacity 0.2s;
-}
-.confirm-modal.open{opacity:1;pointer-events:all}
-.confirm-box{
-  background:var(--surface);border-radius:var(--r);
-  padding:24px;max-width:320px;width:100%;
-  box-shadow:var(--shadow-lg);
-}
-.confirm-box h3{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;margin-bottom:8px}
-.confirm-box p{font-size:0.85rem;color:var(--muted);margin-bottom:18px}
-.confirm-btns{display:flex;gap:10px}
-.confirm-btns .btn{flex:1}
+.picker-row:hover{border-color:var(--forest3);box-shadow:0 2px 8px rgba(26,74,40,0.08)}
+.pr-name{font-weight:600;font-size:0.94rem}
+.pr-sub{font-size:0.73rem;color:var(--muted);margin-top:1px}
+.pr-right{text-align:right;flex-shrink:0}
+.pr-lbs{font-family:'Libre Baskerville',serif;font-size:1.05rem;font-weight:700;color:var(--forest)}
+.pr-pay{font-size:0.73rem;color:var(--muted)}
 
 /* ── CHIP ── */
 .chip{
   display:inline-flex;align-items:center;
-  padding:3px 10px;border-radius:999px;
-  font-size:0.72rem;font-weight:600;
-  font-family:'Syne',sans-serif;
+  padding:3px 9px;border-radius:999px;
+  font-size:0.7rem;font-weight:600;
+  font-family:'DM Sans',sans-serif;letter-spacing:0.02em;
 }
-.chip-green{background:rgba(30,92,46,0.1);color:var(--berry)}
-.chip-gold{background:rgba(200,168,75,0.2);color:#8a6a1a}
-.chip-red{background:var(--danger-bg);color:var(--danger)}
+.chip-green{background:var(--forest-lt);color:var(--forest)}
+.chip-gold{background:var(--gold-lt);color:var(--gold)}
+.chip-red{background:var(--danger-lt);color:var(--danger)}
+.chip-warn{background:var(--warn-lt);color:var(--warn)}
 .chip-gray{background:var(--page);color:var(--muted);border:1px solid var(--border)}
 
-/* ── SECTION HEADER ── */
-.sec-hdr{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:10px;
-}
-.sec-hdr h3{font-family:'Syne',sans-serif;font-size:0.85rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em}
-
-/* ── PAYMENT ROW ── */
+/* ── PAY ROW ── */
 .pay-row{
   display:flex;align-items:center;justify-content:space-between;
-  padding:10px 0;border-bottom:1px solid var(--border);
-  gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--border);gap:10px;
 }
 .pay-row:last-child{border-bottom:none}
-.pay-row .pr-amt{font-family:'Syne',sans-serif;font-weight:700;color:var(--berry);white-space:nowrap}
-.pay-row .pr-date{font-size:0.75rem;color:var(--muted)}
-.pay-row .pr-note{font-size:0.78rem;color:var(--muted)}
+.pay-row .pr-amt{font-family:'Libre Baskerville',serif;font-weight:700;color:var(--forest);white-space:nowrap}
 
-/* ── ARCHIVE DROPDOWN ── */
-.archive-section{margin-top:10px}
+/* ── ARCHIVE ── */
 .archive-toggle{
   display:flex;align-items:center;justify-content:space-between;
   padding:12px 0;cursor:pointer;
-  font-size:0.82rem;color:var(--muted);font-weight:600;
+  font-size:0.8rem;color:var(--muted);font-weight:600;
   border-top:1px solid var(--border);
 }
-.archive-toggle span{display:flex;align-items:center;gap:6px}
 .archive-body{display:none;padding-top:4px}
 .archive-body.open{display:block}
 
-/* ── CHART PLACEHOLDER ── */
-.chart-wrap{
-  background:var(--page);border-radius:var(--r-sm);
-  border:1px solid var(--border);
-  padding:16px;margin-bottom:14px;
-  min-height:180px;
-  position:relative;
-  overflow:hidden;
+/* ── OVERLAY SHEETS ── */
+.overlay{
+  position:fixed;inset:0;background:rgba(20,26,18,0.55);
+  z-index:200;display:flex;align-items:flex-end;
+  justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.22s;
+}
+.overlay.open{opacity:1;pointer-events:all}
+.sheet{
+  width:100%;max-width:560px;
+  background:var(--surface);border-radius:18px 18px 0 0;
+  max-height:90vh;overflow-y:auto;
+  transform:translateY(100%);
+  transition:transform 0.28s cubic-bezier(.32,.72,0,1);
+  padding:0 22px 40px;
+}
+.overlay.open .sheet{transform:translateY(0)}
+.sheet-handle{width:36px;height:3px;background:var(--border);border-radius:2px;margin:13px auto 18px}
+.sheet-title{
+  font-family:'Libre Baskerville',serif;
+  font-size:1.1rem;font-weight:700;color:var(--forest);margin-bottom:18px;
 }
 
-/* ── FERTILIZER TYPE CHIP ── */
+/* ── CONFIRM ── */
+.confirm-modal{
+  position:fixed;inset:0;background:rgba(20,26,18,0.5);
+  z-index:300;display:flex;align-items:center;justify-content:center;
+  padding:20px;opacity:0;pointer-events:none;transition:opacity 0.18s;
+}
+.confirm-modal.open{opacity:1;pointer-events:all}
+.confirm-box{
+  background:var(--surface);border-radius:var(--r);
+  padding:22px;max-width:340px;width:100%;box-shadow:var(--shadow-lg);
+}
+.confirm-box h3{font-family:'Libre Baskerville',serif;font-size:1rem;font-weight:700;margin-bottom:7px}
+.confirm-box p{font-size:0.83rem;color:var(--muted);margin-bottom:18px;line-height:1.55}
+.confirm-btns{display:flex;gap:10px}
+.confirm-btns .btn{flex:1}
+
+/* ── FERTILIZER CHIP ── */
 .fert-chip{
   display:inline-flex;align-items:center;gap:6px;
-  padding:6px 14px;border-radius:999px;
-  border:1.5px solid var(--border);
-  font-size:0.82rem;font-weight:600;cursor:pointer;
-  margin:4px;background:white;
-  transition:all 0.15s;
+  padding:6px 12px;border-radius:var(--r-sm);
+  border:1px solid var(--border2);font-size:0.8rem;font-weight:600;
+  cursor:pointer;margin:3px;background:white;transition:all 0.12s;
 }
-.fert-chip.selected{border-color:var(--berry);background:rgba(30,92,46,0.08);color:var(--berry)}
+.fert-chip.selected{border-color:var(--forest);background:var(--forest-lt);color:var(--forest)}
+.fert-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 
 /* ── SALE ITEM ── */
 .sale-item{
   display:flex;align-items:center;justify-content:space-between;
-  padding:13px 16px;
-  background:var(--surface);border-radius:var(--r-sm);
-  border:1px solid var(--border);margin-bottom:9px;
-  cursor:pointer;transition:all 0.12s;gap:10px;
+  padding:13px 16px;background:var(--surface);
+  border-radius:var(--r-sm);border:1px solid var(--border);
+  margin-bottom:9px;cursor:pointer;transition:all 0.12s;gap:10px;
 }
-.sale-item:hover{border-color:var(--accent);box-shadow:0 2px 8px rgba(200,168,75,0.12)}
-.sale-item .si-val{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;color:var(--accent);text-align:right}
-.sale-item .si-sub{font-size:0.72rem;color:var(--muted)}
-
-/* ── EMPTY STATE ── */
-.empty-state{text-align:center;padding:32px 16px;color:var(--muted)}
-.empty-state .ei{font-size:2.5rem;display:block;margin-bottom:8px}
-.empty-state p{font-size:0.85rem}
-
-/* ── SEASON TOGGLE ── */
-.year-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.year-nav .yn-year{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--berry)}
+.sale-item:hover{border-color:var(--gold);box-shadow:0 2px 8px rgba(181,136,42,0.1)}
+.si-val{font-family:'Libre Baskerville',serif;font-weight:700;font-size:1rem;color:var(--gold);text-align:right}
+.si-sub{font-size:0.72rem;color:var(--muted)}
 
 /* ── RANKING ── */
 .rank-item{
   display:flex;align-items:center;gap:12px;
-  padding:11px 14px;
-  background:var(--page);border-radius:var(--r-sm);
-  border:1px solid var(--border);margin-bottom:8px;
+  padding:11px 14px;background:var(--page);
+  border-radius:var(--r-sm);border:1px solid var(--border);margin-bottom:8px;
 }
-.rank-num{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;width:24px;text-align:center;color:var(--muted)}
-.rank-num.gold{color:#b8860b}
-.rank-num.silver{color:#8a8a8a}
-.rank-num.bronze{color:#a0522d}
+.rank-num{font-family:'Libre Baskerville',serif;font-weight:700;font-size:1rem;width:22px;text-align:center;color:var(--muted)}
+.rank-num.gold{color:#a07010}
+.rank-num.silver{color:#707070}
+.rank-num.bronze{color:#8a4020}
+
+/* ── YEAR NAV ── */
+.year-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.yn-year{font-family:'Libre Baskerville',serif;font-size:1.35rem;font-weight:700;color:var(--forest)}
+
+/* ── FERTILIZER CALENDAR ── */
+.fert-cal-wrap{overflow-x:auto}
+.fert-cal-month{margin-bottom:14px}
+.fert-cal-month-label{
+  font-family:'DM Sans',sans-serif;font-size:0.72rem;font-weight:700;
+  text-transform:uppercase;letter-spacing:0.1em;color:var(--muted);
+  margin-bottom:6px;
+}
+.fert-cal-row{display:flex;gap:3px;flex-wrap:wrap}
+.fcal-day{
+  width:26px;height:26px;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.6rem;font-weight:700;font-family:'DM Sans',sans-serif;
+  cursor:default;border:1px solid transparent;position:relative;
+  flex-shrink:0;
+}
+.fcal-day.empty-day{background:var(--page);color:var(--border2)}
+.fcal-day.has-single{cursor:pointer}
+.fcal-day.has-multi{cursor:pointer}
+.fcal-day .multi-dots{
+  position:absolute;bottom:2px;left:50%;transform:translateX(-50%);
+  display:flex;gap:1px;
+}
+.mini-dot{width:4px;height:4px;border-radius:50%}
+.cal-month-nav{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.cal-month-label{font-family:'Libre Baskerville',serif;font-size:1rem;font-weight:700;color:var(--forest);flex:1;text-align:center}
+
+/* ── BAR CHART ── */
+.bar-chart{display:flex;align-items:flex-end;gap:5px;height:110px;padding:0 4px}
+.bar-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
+.bar-fill{width:100%;border-radius:4px 4px 0 0;min-height:3px;transition:height 0.35s}
+.bar-lbl{font-size:0.6rem;color:var(--muted);font-weight:700;white-space:nowrap;font-family:'DM Sans',sans-serif}
+
+/* ── SECTION HEADER ── */
+.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.sec-hdr h3{font-family:'DM Sans',sans-serif;font-size:0.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.09em}
+
+/* ── SEARCH BAR ── */
+.search-bar{position:relative;margin-bottom:14px}
+.search-bar input{padding-left:34px}
+.search-bar::before{
+  content:'';position:absolute;left:12px;top:50%;transform:translateY(-50%);
+  width:14px;height:14px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237a8870' stroke-width='2.5'%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3Cpath d='m21 21-4.35-4.35'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-size:contain;
+  pointer-events:none;
+}
+
+/* ── DATE FILTER ROW ── */
+.date-filter{
+  display:flex;align-items:center;gap:8px;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:8px 12px;margin-bottom:14px;
+  flex-wrap:wrap;
+}
+.date-filter label{font-size:0.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.07em;white-space:nowrap}
+.date-filter input{width:auto;padding:5px 8px;font-size:0.82rem;border-radius:var(--r-xs);border:1px solid var(--border);flex:1;min-width:110px}
+.date-filter .btn{padding:5px 12px;font-size:0.78rem;width:auto}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:32px 16px;color:var(--muted)}
+.empty-state .ei{font-size:2rem;display:block;margin-bottom:8px;opacity:0.5}
+.empty-state p{font-size:0.84rem}
 
 /* ── TOAST ── */
 #toast{
-  position:fixed;bottom:80px;left:50%;
-  transform:translateX(-50%) translateY(20px);
+  position:fixed;bottom:72px;left:50%;
+  transform:translateX(-50%) translateY(16px);
   background:var(--ink);color:white;
-  padding:11px 22px;border-radius:999px;
-  font-size:0.85rem;font-weight:500;
+  padding:10px 20px;border-radius:var(--r-sm);
+  font-size:0.83rem;font-weight:500;
   z-index:500;opacity:0;
-  transition:all 0.3s cubic-bezier(.34,1.56,.64,1);
+  transition:all 0.28s cubic-bezier(.34,1.4,.64,1);
   white-space:nowrap;pointer-events:none;
   box-shadow:var(--shadow-lg);
 }
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-/* ── BAR CHART ── */
-.bar-chart{display:flex;align-items:flex-end;gap:4px;height:100px;padding:0 4px}
-.bar-col{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1}
-.bar-fill{width:100%;border-radius:4px 4px 0 0;background:var(--berry3);min-height:3px;transition:height 0.4s}
-.bar-lbl{font-size:0.6rem;color:var(--muted);font-family:'Syne',sans-serif;font-weight:700;white-space:nowrap}
+/* ── BALANCE BOX ── */
+.balance-preview{
+  background:var(--forest-lt);border:1px solid #b8d8c0;
+  border-radius:var(--r-sm);padding:12px 14px;margin-bottom:14px;
+  font-size:0.85rem;color:var(--ink2);
+}
+.balance-preview strong{color:var(--forest)}
+.balance-warn{background:var(--warn-lt);border-color:#e0c898;color:var(--ink2)}
+.balance-warn strong{color:var(--warn)}
 
-/* ── DOT CALENDAR ── */
-.dot-cal{display:flex;flex-wrap:wrap;gap:5px;padding:8px}
-.dot-day{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:0.62rem;font-weight:700;font-family:'Syne',sans-serif;cursor:default;border:1px solid transparent}
-.dot-day.empty{background:var(--page);color:var(--border)}
-.dot-day.has-data{color:white;cursor:pointer}
+/* ── PROFIT SUMMARY ── */
+.profit-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-bottom:1px solid var(--border);
+}
+.profit-row:last-child{border-bottom:none}
 
 /* ── UTILS ── */
 .hidden{display:none!important}
 .mt8{margin-top:8px}
-.mt14{margin-top:14px}
-.mt20{margin-top:20px}
-.mb0{margin-bottom:0}
-.w100{width:100%}
-.flex-center{display:flex;align-items:center;justify-content:center}
-.gap10{gap:10px}
+.mt12{margin-top:12px}
+.mt16{margin-top:16px}
+.mb0{margin-bottom:0!important}
+.flex{display:flex}
+.flex-gap{gap:10px}
+.serif{font-family:'Libre Baskerville',serif}
 .text-muted{color:var(--muted)}
-.text-berry{color:var(--berry)}
+.text-forest{color:var(--forest)}
 .text-sm{font-size:0.82rem}
-.font-bold{font-weight:700}
-.syne{font-family:'Syne',sans-serif}
+.text-xs{font-size:0.72rem}
+.bold{font-weight:700}
 .divider{border:none;border-top:1px solid var(--border);margin:14px 0}
+
+/* ══ RESPONSIVE ══ */
+@media (max-width: 680px){
+  #sidebar{display:none}
+  #mobile-nav{display:flex}
+  .stats-4{grid-template-columns:repeat(2,1fr)}
+  .tab-panel{padding:14px}
+  #topbar{padding:0 14px}
+}
+@media (min-width:681px){
+  #topbar-title{display:none} /* shown in sidebar brand */
+}
+@media (max-width:420px){
+  .stats-3{grid-template-columns:repeat(3,1fr)}
+  .stat-box .sv{font-size:1.1rem}
+  .form-row{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 <div id="app">
 
-  <!-- TOP NAV -->
-  <div id="top-nav">
-    <button class="nav-back hidden" id="nav-back-btn" onclick="goBack()">← Back</button>
-    <div class="nav-title" id="nav-title">🫐 Berry Farm</div>
+<!-- ════════ SIDEBAR ════════ -->
+<div id="sidebar">
+  <div class="sidebar-brand">
+    <h1>Berry Farm<br>Manager</h1>
+    <p>Season Tracker</p>
+  </div>
+  <div class="sidebar-nav">
+    <button class="snav-btn active" id="snav-pickers" onclick="switchMain('pickers')">
+      <span class="snav-icon">&#9650;</span> Pickers
+    </button>
+    <button class="snav-btn" id="snav-farm" onclick="switchMain('farm')">
+      <span class="snav-icon">&#9632;</span> Farm
+    </button>
+  </div>
+</div>
+
+<!-- ════════ MAIN ════════ -->
+<div id="main">
+  <!-- TOP BAR -->
+  <div id="topbar">
+    <button class="topbar-back hidden" id="topbar-back" onclick="goBack()">&#8592; Back</button>
+    <div id="topbar-title">Berry Farm Manager</div>
   </div>
 
-  <!-- CONTENT AREA -->
+  <!-- CONTENT -->
   <div id="content">
 
-    <!-- ══════════════════════════════════════
-         PAGE: PICKERS (main)
-    ══════════════════════════════════════ -->
+    <!-- ══ PAGE: PICKERS ══ -->
     <div class="page active" id="page-pickers">
       <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchPickerTab('day')">Day</button>
-        <button class="tab-btn" onclick="switchPickerTab('log')">Log Entry</button>
-        <button class="tab-btn" onclick="switchPickerTab('payroll')">Payroll</button>
-        <button class="tab-btn" onclick="switchPickerTab('database')">Pickers DB</button>
+        <button class="tab-btn active" onclick="switchPickerTab('day',this)">Day</button>
+        <button class="tab-btn" onclick="switchPickerTab('log',this)">Log Entry</button>
+        <button class="tab-btn" onclick="switchPickerTab('payroll',this)">Payroll</button>
+        <button class="tab-btn" onclick="switchPickerTab('database',this)">Pickers</button>
       </div>
 
-      <!-- TAB: DAY SUMMARY -->
+      <!-- DAY TAB -->
       <div class="tab-panel active scroll" id="pt-day">
-
-        <div class="date-nav">
-          <button class="dn-btn" onclick="shiftDay(-1)">‹</button>
-          <div style="text-align:center">
-            <div class="dn-label" id="day-label">Loading…</div>
+        <div class="date-nav" id="day-date-nav">
+          <button class="dn-btn" onclick="shiftDay(-1)">&#8249;</button>
+          <div class="dn-center">
+            <div class="dn-label" onclick="triggerDatePicker('day-date-input')" title="Click to jump to a date">
+              <span id="day-label">Today</span>
+              <span class="dn-cal-icon">&#9663;</span>
+            </div>
             <div class="dn-sub" id="day-sub"></div>
+            <input type="date" id="day-date-input" class="dn-input" onchange="jumpToDate('day',this.value)">
           </div>
-          <button class="dn-btn" onclick="shiftDay(1)" id="day-next-btn">›</button>
+          <button class="dn-btn" id="day-fwd-btn" onclick="shiftDay(1)">&#8250;</button>
         </div>
 
-        <div class="stats-grid">
-          <div class="stat-box"><div class="sv" id="ds-lbs">0</div><div class="sl">lbs</div></div>
-          <div class="stat-box"><div class="sv" id="ds-pay">$0</div><div class="sl">pay owed</div></div>
-          <div class="stat-box"><div class="sv" id="ds-pickers">0</div><div class="sl">pickers</div></div>
+        <div class="stats-grid stats-3">
+          <div class="stat-box"><div class="sv" id="ds-lbs">0.0</div><div class="sl">lbs</div></div>
+          <div class="stat-box"><div class="sv" id="ds-pay">$0.00</div><div class="sl">pay owed</div></div>
+          <div class="stat-box"><div class="sv" id="ds-count">0</div><div class="sl">pickers</div></div>
         </div>
 
         <div id="day-pickers-list"></div>
 
-        <button class="btn-add" onclick="openAddPickerToDay()">＋ Add Picker for Today</button>
+        <button class="btn-add" id="add-picker-day-btn" onclick="openAddPickerToDay()">+ Add Picker for This Day</button>
       </div>
 
-      <!-- TAB: LOG ENTRY -->
+      <!-- LOG ENTRY TAB -->
       <div class="tab-panel scroll" id="pt-log">
         <div class="card">
           <div class="card-title">New Log Entry</div>
           <div class="form-group">
             <label class="fl">Picker</label>
-            <select id="le-picker"><option value="">— Select —</option></select>
+            <div class="select-wrap">
+              <select id="le-picker"><option value="">— Select Picker —</option></select>
+            </div>
           </div>
           <div class="form-row">
             <div class="form-group">
@@ -512,189 +644,213 @@ textarea{resize:vertical;min-height:70px}
             </div>
           </div>
           <div class="form-group">
-            <label class="fl">Pounds Picked</label>
+            <label class="fl">Pounds Picked *</label>
             <input type="number" id="le-lbs" placeholder="0.0" step="0.5" min="0">
           </div>
           <div class="form-group">
             <label class="fl">Notes</label>
-            <textarea id="le-notes" placeholder="Optional…"></textarea>
+            <textarea id="le-notes" placeholder="Optional notes…"></textarea>
           </div>
+          <div id="le-error" class="hidden" style="background:var(--danger-lt);border:1px solid #f0c0b8;border-radius:var(--r-sm);padding:10px 13px;font-size:0.83rem;color:var(--danger);margin-bottom:12px"></div>
           <button class="btn btn-primary" onclick="submitLogEntry()">Save Log Entry</button>
         </div>
       </div>
 
-      <!-- TAB: PAYROLL -->
+      <!-- PAYROLL TAB -->
       <div class="tab-panel scroll" id="pt-payroll">
-        <div class="stats-grid" style="grid-template-columns:1fr 1fr">
-          <div class="stat-box"><div class="sv" id="pr-total-owed">$0</div><div class="sl">total owed</div></div>
-          <div class="stat-box"><div class="sv" id="pr-total-paid">$0</div><div class="sl">total paid</div></div>
+        <div class="date-filter">
+          <label>From</label>
+          <input type="date" id="pr-from">
+          <label>To</label>
+          <input type="date" id="pr-to">
+          <button class="btn btn-ghost btn-sm" onclick="renderPayroll()">Apply</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearPayrollFilter()">All Time</button>
         </div>
-        <div id="payroll-list-el"></div>
+        <div class="stats-grid stats-2">
+          <div class="stat-box"><div class="sv" id="pr-owed">$0.00</div><div class="sl">Balance Owing</div></div>
+          <div class="stat-box"><div class="sv" id="pr-paid">$0.00</div><div class="sl">Total Paid</div></div>
+        </div>
+        <div id="payroll-list"></div>
       </div>
 
-      <!-- TAB: DATABASE -->
+      <!-- PICKERS DB TAB -->
       <div class="tab-panel scroll" id="pt-database">
-        <button class="btn btn-primary mb0" onclick="openAddPickerSheet()">＋ Add New Picker</button>
-        <div class="mt14" id="picker-db-list"></div>
-        <div class="archive-section">
-          <div class="archive-toggle" onclick="toggleArchiveSection()">
-            <span>📦 Archived Pickers (<span id="archive-count">0</span>)</span>
-            <span id="archive-arrow">▾</span>
+        <button class="btn btn-primary mb0" onclick="openAddPickerSheet()">+ Add New Picker</button>
+        <div class="search-bar mt12">
+          <input type="text" id="picker-search" placeholder="Search pickers…" oninput="renderPickerDB()">
+        </div>
+        <div id="picker-db-list"></div>
+        <div style="margin-top:6px">
+          <div class="archive-toggle" onclick="toggleArchive()">
+            <span>Archived Pickers (<span id="archive-count">0</span>)</span>
+            <span id="archive-arrow">&#9660;</span>
           </div>
           <div class="archive-body" id="archive-body"></div>
         </div>
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════
-         PAGE: FARM
-    ══════════════════════════════════════ -->
+    <!-- ══ PAGE: FARM ══ -->
     <div class="page" id="page-farm">
       <div class="tab-bar">
-        <button class="tab-btn active" onclick="switchFarmTab('season')">Season</button>
-        <button class="tab-btn" onclick="switchFarmTab('sales')">Sales</button>
-        <button class="tab-btn" onclick="switchFarmTab('ops')">Operations</button>
+        <button class="tab-btn active" onclick="switchFarmTab('season',this)">Season</button>
+        <button class="tab-btn" onclick="switchFarmTab('sales',this)">Sales</button>
+        <button class="tab-btn" onclick="switchFarmTab('ops',this)">Operations</button>
       </div>
 
-      <!-- TAB: SEASON -->
+      <!-- SEASON TAB -->
       <div class="tab-panel active scroll" id="ft-season">
         <div class="year-nav">
-          <button class="dn-btn" onclick="shiftYear(-1)">‹</button>
+          <button class="dn-btn" onclick="shiftYear(-1)">&#8249;</button>
           <div class="yn-year" id="season-year">2025</div>
-          <button class="dn-btn" onclick="shiftYear(1)" id="year-next-btn">›</button>
+          <button class="dn-btn" onclick="shiftYear(1)">&#8250;</button>
         </div>
-
         <div class="card mb0">
           <div class="card-title">Season Overview</div>
-          <div class="stats-grid" style="grid-template-columns:repeat(2,1fr)">
-            <div class="stat-box"><div class="sv" id="sn-lbs">0</div><div class="sl">Total lbs</div></div>
-            <div class="stat-box"><div class="sv" id="sn-pay">$0</div><div class="sl">Total Pay</div></div>
-            <div class="stat-box"><div class="sv" id="sn-rate">$0</div><div class="sl">Avg Rate</div></div>
+          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);margin-bottom:7px;padding:0 2px">Picking</div>
+          <div class="stats-grid stats-2" style="margin-bottom:12px">
+            <div class="stat-box"><div class="sv" id="sn-lbs">0</div><div class="sl">Total lbs Picked</div></div>
             <div class="stat-box"><div class="sv" id="sn-days">0</div><div class="sl">Picking Days</div></div>
+            <div class="stat-box"><div class="sv" id="sn-rate">$0</div><div class="sl">Avg Picker Rate/lb</div></div>
+            <div class="stat-box"><div class="sv" id="sn-pay">$0</div><div class="sl">Total Picker Cost</div></div>
+          </div>
+          <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.09em;color:var(--muted);margin-bottom:7px;padding:0 2px;margin-top:4px;border-top:1px solid var(--border);padding-top:12px">Sales</div>
+          <div class="stats-grid stats-2">
+            <div class="stat-box"><div class="sv" id="sn-sale-val">$0</div><div class="sl">Total Sale Value</div></div>
+            <div class="stat-box"><div class="sv" id="sn-sale-rate">$0</div><div class="sl">Avg Sale Rate/lb</div></div>
           </div>
         </div>
-
         <div class="card" style="margin-top:14px">
-          <div class="card-title">Daily Totals</div>
-          <div id="season-daily-list"></div>
+          <div class="card-title">Profit / Loss</div>
+          <div id="profit-summary"></div>
         </div>
-
+        <div class="card">
+          <div class="card-title">Daily Totals</div>
+          <div id="season-daily"></div>
+        </div>
         <div class="card">
           <div class="card-title">Top Pickers</div>
-          <div id="season-top-pickers"></div>
+          <div id="season-top"></div>
         </div>
-
         <div class="card">
           <div class="card-title">Season Comparison</div>
-          <div class="chart-wrap" id="season-compare-chart" style="min-height:160px"></div>
+          <div id="season-chart" style="padding:8px 0"></div>
         </div>
       </div>
 
-      <!-- TAB: SALES -->
+      <!-- SALES TAB -->
       <div class="tab-panel scroll" id="ft-sales">
-        <button class="btn-add" onclick="openAddSaleSheet()">＋ Add Sale</button>
-        <div id="sales-list"></div>
+        <div class="stats-grid stats-2" style="margin-bottom:14px">
+          <div class="stat-box"><div class="sv" id="sales-total-lbs">0</div><div class="sl">lbs sold</div></div>
+          <div class="stat-box"><div class="sv" id="sales-total-val">$0</div><div class="sl">total revenue</div></div>
+        </div>
+        <button class="btn-add" onclick="openAddSaleSheet()">+ Add Sale</button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <button class="btn btn-ghost" onclick="openSalesHistory()" style="font-size:0.82rem;padding:12px 14px;border-radius:var(--r-sm)">All Sales</button>
+          <button class="btn btn-ghost" onclick="openBuyersList()" style="font-size:0.82rem;padding:12px 14px;border-radius:var(--r-sm)">Buyers / Processors</button>
+        </div>
       </div>
 
-      <!-- TAB: OPERATIONS -->
+      <!-- OPS TAB -->
       <div class="tab-panel scroll" id="ft-ops">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
-          <button class="btn btn-primary" onclick="goToOpsPage('fertilizer')" style="flex-direction:column;height:90px;border-radius:var(--r);gap:6px">
-            <span style="font-size:1.8rem">🌿</span>Fertilizer
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px">
+          <button class="btn btn-ghost" onclick="goToOps('fertilizer')" style="flex-direction:column;height:88px;border-radius:var(--r);gap:5px;font-size:0.92rem">
+            Fertilizer
           </button>
-          <button class="btn btn-ghost" onclick="goToOpsPage('labour')" style="flex-direction:column;height:90px;border-radius:var(--r);gap:6px">
-            <span style="font-size:1.8rem">🔧</span>Labour
+          <button class="btn btn-ghost" onclick="goToOps('labour')" style="flex-direction:column;height:88px;border-radius:var(--r);gap:5px;font-size:0.92rem">
+            Labour
           </button>
         </div>
         <div class="card">
-          <div class="card-title">Quick Summary</div>
-          <div id="ops-quick-summary"></div>
+          <div class="card-title">Operations Summary</div>
+          <div id="ops-summary"></div>
         </div>
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════
-         PAGE: PICKER DETAIL
-    ══════════════════════════════════════ -->
+    <!-- ══ PAGE: PICKER DETAIL ══ -->
     <div class="page" id="page-picker-detail">
       <div class="tab-panel active scroll" id="picker-detail-content" style="padding-top:16px"></div>
     </div>
 
-    <!-- ══════════════════════════════════════
-         PAGE: OPS - FERTILIZER
-    ══════════════════════════════════════ -->
+    <!-- ══ PAGE: FERTILIZER ══ -->
     <div class="page" id="page-fertilizer">
       <div class="tab-panel active scroll">
         <div class="card">
           <div class="card-title">Application Calendar</div>
-          <div id="fert-calendar" class="dot-cal"></div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px" id="fert-legend"></div>
+          <div class="cal-month-nav">
+            <button class="dn-btn" onclick="shiftFertMonth(-1)">&#8249;</button>
+            <div class="cal-month-label" id="fert-month-label">—</div>
+            <button class="dn-btn" onclick="shiftFertMonth(1)">&#8250;</button>
+          </div>
+          <div id="fert-calendar"></div>
+          <div id="fert-legend" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:10px"></div>
         </div>
-        <button class="btn-add" onclick="openFertSheet()">＋ Log Fertilization</button>
+        <button class="btn-add" onclick="openFertSheet()">+ Log Fertilization</button>
         <div id="fert-log-list"></div>
       </div>
     </div>
 
-    <!-- ══════════════════════════════════════
-         PAGE: OPS - LABOUR
-    ══════════════════════════════════════ -->
+    <!-- ══ PAGE: LABOUR ══ -->
     <div class="page" id="page-labour">
       <div class="tab-panel active scroll">
         <div class="card">
           <div class="card-title">Labour Summary</div>
-          <div class="stats-grid" style="grid-template-columns:1fr 1fr">
-            <div class="stat-box"><div class="sv" id="lab-total-hrs">0h</div><div class="sl">Total Hours</div></div>
-            <div class="stat-box"><div class="sv" id="lab-tasks">0</div><div class="sl">Tasks Logged</div></div>
+          <div class="stats-grid stats-2">
+            <div class="stat-box"><div class="sv" id="lab-hrs">0.0h</div><div class="sl">Total Hours</div></div>
+            <div class="stat-box"><div class="sv" id="lab-tasks-count">0</div><div class="sl">Tasks Logged</div></div>
           </div>
-          <div id="labour-by-type" class="mt8"></div>
+          <div id="labour-breakdown"></div>
         </div>
-        <button class="btn-add" onclick="openLabourSheet()">＋ Log Labour</button>
+        <button class="btn-add" onclick="openLabourSheet()">+ Log Labour</button>
         <div id="labour-log-list"></div>
       </div>
     </div>
 
   </div><!-- end #content -->
 
-  <!-- BOTTOM NAV -->
-  <div id="bottom-nav">
-    <button class="bnav-btn active" onclick="switchMainPage('pickers')" id="bnav-pickers">
-      <span class="icon">👷</span>Pickers
+  <!-- MOBILE BOTTOM NAV -->
+  <div id="mobile-nav">
+    <button class="mnav-btn active" id="mnav-pickers" onclick="switchMain('pickers')">
+      <span class="mnav-icon">&#9650;</span>Pickers
     </button>
-    <button class="bnav-btn" onclick="switchMainPage('farm')" id="bnav-farm">
-      <span class="icon">🌱</span>Farm
+    <button class="mnav-btn" id="mnav-farm" onclick="switchMain('farm')">
+      <span class="mnav-icon">&#9632;</span>Farm
     </button>
   </div>
-
+</div><!-- end #main -->
 </div><!-- end #app -->
 
-<!-- ══════════════════════════════════════
-     OVERLAYS / SHEETS
-══════════════════════════════════════ -->
+<!-- ════════════════════════════════════════
+     OVERLAYS
+════════════════════════════════════════ -->
 
 <!-- Add Picker to Day -->
-<div class="overlay" id="overlay-add-day-picker">
+<div class="overlay" id="ov-add-day-picker">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-title">Add Picker for Day</div>
+    <div class="sheet-title">Add Pickers for This Day</div>
     <div id="add-day-picker-list"></div>
-    <div class="mt14">
-      <button class="btn btn-ghost w100" onclick="closeOverlay('overlay-add-day-picker')">Cancel</button>
+    <div class="mt12">
+      <button class="btn btn-primary" onclick="closeOverlay('ov-add-day-picker')">Done</button>
     </div>
   </div>
 </div>
 
-<!-- Add Picker Sheet -->
-<div class="overlay" id="overlay-add-picker">
+<!-- Add / Edit Picker -->
+<div class="overlay" id="ov-add-picker">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-title" id="add-picker-title">Add Picker</div>
-    <div class="form-group">
-      <label class="fl">Full Name *</label>
-      <input type="text" id="ap-name" placeholder="Jane Smith">
-    </div>
-    <div class="form-group">
-      <label class="fl">Pay Rate ($/lb) *</label>
-      <input type="number" id="ap-rate" placeholder="0.35" step="0.01" min="0">
+    <div class="sheet-title" id="ap-title">Add Picker</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="fl">Full Name *</label>
+        <input type="text" id="ap-name" placeholder="Full name">
+      </div>
+      <div class="form-group">
+        <label class="fl">Rate ($/lb) *</label>
+        <input type="number" id="ap-rate" placeholder="0.35" step="0.01" min="0">
+      </div>
     </div>
     <div class="form-group">
       <label class="fl">Phone (optional)</label>
@@ -702,24 +858,22 @@ textarea{resize:vertical;min-height:70px}
     </div>
     <div class="form-group">
       <label class="fl">Notes (optional)</label>
-      <textarea id="ap-notes" placeholder="Any notes…" style="min-height:60px"></textarea>
+      <textarea id="ap-notes" placeholder="Any notes…"></textarea>
     </div>
     <input type="hidden" id="ap-edit-id">
     <button class="btn btn-primary" onclick="savePicker()">Save Picker</button>
-    <div class="mt8">
-      <button class="btn btn-ghost w100" onclick="closeOverlay('overlay-add-picker')">Cancel</button>
-    </div>
+    <div class="mt8"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-add-picker')">Cancel</button></div>
   </div>
 </div>
 
-<!-- Add Log (from picker detail) -->
-<div class="overlay" id="overlay-add-log">
+<!-- Add / Edit Log -->
+<div class="overlay" id="ov-add-log">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-title">Add Log</div>
+    <div class="sheet-title" id="al-title">Add Log</div>
     <div class="form-group">
       <label class="fl">Picker</label>
-      <input type="text" id="al-picker-name" readonly style="background:var(--page)">
+      <input type="text" id="al-picker-name" readonly>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -737,71 +891,78 @@ textarea{resize:vertical;min-height:70px}
     </div>
     <div class="form-group">
       <label class="fl">Notes</label>
-      <textarea id="al-notes" placeholder="Optional…" style="min-height:60px"></textarea>
+      <textarea id="al-notes" placeholder="Optional…"></textarea>
     </div>
     <input type="hidden" id="al-picker-id">
     <input type="hidden" id="al-edit-id">
     <button class="btn btn-primary" onclick="saveLog()">Save Log</button>
-    <div class="mt8">
-      <button class="btn btn-ghost w100" onclick="closeOverlay('overlay-add-log')">Cancel</button>
-    </div>
+    <div class="mt8"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-add-log')">Cancel</button></div>
   </div>
 </div>
 
-<!-- View Log Detail -->
-<div class="overlay" id="overlay-log-detail">
+<!-- Log Detail -->
+<div class="overlay" id="ov-log-detail">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Log Detail</div>
     <div id="log-detail-content"></div>
-    <div class="mt14" style="display:flex;gap:10px">
-      <button class="btn btn-ghost" style="flex:1" onclick="editLogFromDetail()">✏️ Edit</button>
-      <button class="btn btn-danger" style="flex:1" onclick="deleteLogFromDetail()">🗑 Delete</button>
+    <div class="mt12 flex flex-gap">
+      <button class="btn btn-ghost" style="flex:1" onclick="editLogFromDetail()">Edit</button>
+      <button class="btn btn-danger" style="flex:1" onclick="deleteLogFromDetail()">Delete</button>
     </div>
-    <div class="mt8">
-      <button class="btn btn-ghost w100" onclick="closeOverlay('overlay-log-detail')">Close</button>
-    </div>
+    <div class="mt8"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-log-detail')">Close</button></div>
+  </div>
+</div>
+
+<!-- Remove Picker from Day -->
+<div class="overlay" id="ov-remove-day-picker">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Manage Day Roster</div>
+    <p class="text-sm text-muted" style="margin-bottom:14px">Remove a picker from this day's roster. Their log entries are preserved.</p>
+    <div id="remove-day-picker-list"></div>
+    <div class="mt12"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-remove-day-picker')">Done</button></div>
   </div>
 </div>
 
 <!-- Payment Sheet -->
-<div class="overlay" id="overlay-payment">
+<div class="overlay" id="ov-payment">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Record Payment</div>
-    <div id="payment-picker-info" style="margin-bottom:16px"></div>
+    <div id="pm-balance-preview"></div>
     <div class="form-group">
-      <label class="fl">Payment Type</label>
-      <div style="display:flex;gap:8px;margin-bottom:10px">
-        <button class="btn btn-ghost btn-sm" id="pay-full-btn" onclick="setPayFull()">Paid in Full</button>
-        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pm-amount').value=''">Partial</button>
+      <label class="fl">Quick Fill</label>
+      <div class="flex flex-gap" style="margin-bottom:10px">
+        <button class="btn btn-ghost btn-sm" onclick="setPayFull()">Paid in Full</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pm-amount').value=''">Clear</button>
       </div>
-      <input type="number" id="pm-amount" placeholder="Amount ($)" step="0.01" min="0">
+      <input type="number" id="pm-amount" placeholder="Amount ($)" step="0.01" min="0" oninput="updatePaymentPreview()">
     </div>
     <div class="form-group">
       <label class="fl">Date</label>
       <input type="date" id="pm-date">
     </div>
     <div class="form-group">
-      <label class="fl">Notes (payment type, etc.)</label>
-      <textarea id="pm-notes" placeholder="e.g. Cash, e-transfer, cheque…" style="min-height:60px"></textarea>
+      <label class="fl">Notes (method, etc.)</label>
+      <textarea id="pm-notes" placeholder="e.g. Cash, e-transfer, cheque…"></textarea>
     </div>
     <input type="hidden" id="pm-picker-id">
     <button class="btn btn-primary" onclick="savePayment()">Record Payment</button>
-    <div class="mt8">
-      <button class="btn btn-ghost w100" onclick="closeOverlay('overlay-payment')">Cancel</button>
-    </div>
+    <div class="mt8"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-payment')">Cancel</button></div>
   </div>
 </div>
 
-<!-- Add Sale Sheet -->
-<div class="overlay" id="overlay-add-sale">
+<!-- Add / Edit Sale -->
+<div class="overlay" id="ov-add-sale">
   <div class="sheet">
     <div class="sheet-handle"></div>
-    <div class="sheet-title" id="sale-sheet-title">Log Sale</div>
+    <div class="sheet-title" id="sl-title">Log Sale</div>
     <div class="form-group">
       <label class="fl">Buyer / Processor *</label>
-      <input type="text" id="sl-buyer" placeholder="Name or company">
+      <div id="sl-buyer-chips" style="display:flex;flex-wrap:wrap;gap:0;margin-bottom:8px"></div>
+      <div id="sl-buyer-empty" class="text-xs text-muted" style="margin-bottom:8px;display:none">No buyers added yet. Add one below first.</div>
+      <button class="btn btn-ghost btn-sm" onclick="openBuyersMgrFromSale()">+ Manage Buyers</button>
     </div>
     <div class="form-row">
       <div class="form-group">
@@ -819,41 +980,38 @@ textarea{resize:vertical;min-height:70px}
     </div>
     <div class="form-group">
       <label class="fl">Notes</label>
-      <textarea id="sl-notes" placeholder="Optional…" style="min-height:60px"></textarea>
+      <textarea id="sl-notes" placeholder="Optional…"></textarea>
     </div>
     <input type="hidden" id="sl-edit-id">
+    <input type="hidden" id="sl-selected-buyer">
     <button class="btn btn-primary" onclick="saveSale()">Save Sale</button>
-    <div class="mt8">
-      <button class="btn btn-ghost w100" onclick="closeOverlay('overlay-add-sale')">Cancel</button>
-    </div>
+    <div class="mt8"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-add-sale')">Cancel</button></div>
   </div>
 </div>
 
 <!-- Sale Detail -->
-<div class="overlay" id="overlay-sale-detail">
+<div class="overlay" id="ov-sale-detail">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Sale Detail</div>
     <div id="sale-detail-content"></div>
-    <div class="mt14" style="display:flex;gap:10px">
-      <button class="btn btn-ghost" style="flex:1" onclick="editSaleFromDetail()">✏️ Edit</button>
-      <button class="btn btn-danger" style="flex:1" onclick="deleteSaleFromDetail()">🗑 Delete</button>
+    <div class="mt12 flex flex-gap">
+      <button class="btn btn-ghost" style="flex:1" onclick="editSaleFromDetail()">Edit</button>
+      <button class="btn btn-danger" style="flex:1" onclick="deleteSaleFromDetail()">Delete</button>
     </div>
-    <div class="mt8">
-      <button class="btn btn-ghost w100" onclick="closeOverlay('overlay-sale-detail')">Close</button>
-    </div>
+    <div class="mt8"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-sale-detail')">Close</button></div>
   </div>
 </div>
 
-<!-- Fertilizer Sheet -->
-<div class="overlay" id="overlay-fert">
+<!-- Fertilizer Log Sheet -->
+<div class="overlay" id="ov-fert">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="fert-sheet-title">Log Fertilization</div>
     <div class="form-group">
-      <label class="fl">Select Fertilizer</label>
-      <div id="fert-type-chips" style="display:flex;flex-wrap:wrap;gap:0"></div>
-      <button class="btn btn-ghost btn-sm mt8" onclick="openFertTypeManager()">＋ Add New Type</button>
+      <label class="fl">Fertilizer Type *</label>
+      <div id="fert-type-chips" style="display:flex;flex-wrap:wrap"></div>
+      <button class="btn btn-ghost btn-sm mt8" onclick="openFertTypeManager()">+ Manage Types</button>
     </div>
     <div class="form-group">
       <label class="fl">Date</label>
@@ -862,7 +1020,7 @@ textarea{resize:vertical;min-height:70px}
     <div class="form-row">
       <div class="form-group">
         <label class="fl">Amount (optional)</label>
-        <input type="text" id="fe-amount" placeholder="e.g. 20kg">
+        <input type="text" id="fe-amount" placeholder="e.g. 20 kg">
       </div>
       <div class="form-group">
         <label class="fl">Labour Hours</label>
@@ -871,19 +1029,16 @@ textarea{resize:vertical;min-height:70px}
     </div>
     <div class="form-group">
       <label class="fl">Notes</label>
-      <textarea id="fe-notes" placeholder="Optional…" style="min-height:60px"></textarea>
+      <textarea id="fe-notes" placeholder="Optional…"></textarea>
     </div>
-    <input type="hidden" id="fe-selected-type">
     <input type="hidden" id="fe-edit-id">
     <button class="btn btn-primary" onclick="saveFertLog()">Save</button>
-    <div class="mt8">
-      <button class="btn btn-ghost w100" onclick="closeOverlay('overlay-fert')">Cancel</button>
-    </div>
+    <div class="mt8"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-fert')">Cancel</button></div>
   </div>
 </div>
 
 <!-- Fertilizer Type Manager -->
-<div class="overlay" id="overlay-fert-types">
+<div class="overlay" id="ov-fert-types">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Fertilizer Types</div>
@@ -899,21 +1054,19 @@ textarea{resize:vertical;min-height:70px}
     </div>
     <button class="btn btn-primary btn-sm" onclick="addFertType()" style="margin-bottom:16px">Add Type</button>
     <div id="fert-types-list"></div>
-    <div class="mt14">
-      <button class="btn btn-ghost w100" onclick="closeOverlay('overlay-fert-types');openFertSheet()">← Back to Log</button>
-    </div>
+    <div class="mt12"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-fert-types');openFertSheet()">Back to Log</button></div>
   </div>
 </div>
 
-<!-- Labour Sheet -->
-<div class="overlay" id="overlay-labour">
+<!-- Labour Log Sheet -->
+<div class="overlay" id="ov-labour">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title" id="lab-sheet-title">Log Labour</div>
     <div class="form-group">
-      <label class="fl">Task Type</label>
-      <div id="labour-type-chips" style="display:flex;flex-wrap:wrap;gap:0"></div>
-      <button class="btn btn-ghost btn-sm mt8" onclick="openLabourTypeManager()">＋ Add New Task</button>
+      <label class="fl">Task Type *</label>
+      <div id="labour-type-chips" style="display:flex;flex-wrap:wrap"></div>
+      <button class="btn btn-ghost btn-sm mt8" onclick="openLabourTypeManager()">+ Manage Task Types</button>
     </div>
     <div class="form-group">
       <label class="fl">Date</label>
@@ -925,19 +1078,16 @@ textarea{resize:vertical;min-height:70px}
     </div>
     <div class="form-group">
       <label class="fl">Notes</label>
-      <textarea id="la-notes" placeholder="Optional…" style="min-height:60px"></textarea>
+      <textarea id="la-notes" placeholder="Optional…"></textarea>
     </div>
-    <input type="hidden" id="la-selected-type">
     <input type="hidden" id="la-edit-id">
     <button class="btn btn-primary" onclick="saveLabourLog()">Save</button>
-    <div class="mt8">
-      <button class="btn btn-ghost w100" onclick="closeOverlay('overlay-labour')">Cancel</button>
-    </div>
+    <div class="mt8"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-labour')">Cancel</button></div>
   </div>
 </div>
 
 <!-- Labour Type Manager -->
-<div class="overlay" id="overlay-labour-types">
+<div class="overlay" id="ov-labour-types">
   <div class="sheet">
     <div class="sheet-handle"></div>
     <div class="sheet-title">Task Types</div>
@@ -953,20 +1103,121 @@ textarea{resize:vertical;min-height:70px}
     </div>
     <button class="btn btn-primary btn-sm" onclick="addLabourType()" style="margin-bottom:16px">Add Task</button>
     <div id="labour-types-list"></div>
-    <div class="mt14">
-      <button class="btn btn-ghost w100" onclick="closeOverlay('overlay-labour-types');openLabourSheet()">← Back to Log</button>
+    <div class="mt12"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-labour-types');openLabourSheet()">Back to Log</button></div>
+  </div>
+</div>
+
+
+<!-- Edit Payment Sheet -->
+<div class="overlay" id="ov-edit-payment">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Edit Payment</div>
+    <div class="form-group">
+      <label class="fl">Amount ($)</label>
+      <input type="number" id="epm-amount" placeholder="0.00" step="0.01" min="0">
     </div>
+    <div class="form-group">
+      <label class="fl">Date</label>
+      <input type="date" id="epm-date">
+    </div>
+    <div class="form-group">
+      <label class="fl">Notes</label>
+      <textarea id="epm-notes" placeholder="e.g. Cash, e-transfer…"></textarea>
+    </div>
+    <input type="hidden" id="epm-id">
+    <button class="btn btn-primary" onclick="saveEditPayment()">Save Changes</button>
+    <div class="mt8"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-edit-payment')">Cancel</button></div>
+  </div>
+</div>
+
+<!-- Sales History Sheet -->
+<div class="overlay" id="ov-sales-history">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Sales Payment History</div>
+    <div class="date-filter" style="flex-wrap:wrap">
+      <label>From</label>
+      <input type="date" id="sh-from" style="width:auto;padding:5px 8px;font-size:0.82rem;border-radius:var(--r-xs);border:1px solid var(--border);flex:1;min-width:110px">
+      <label>To</label>
+      <input type="date" id="sh-to" style="width:auto;padding:5px 8px;font-size:0.82rem;border-radius:var(--r-xs);border:1px solid var(--border);flex:1;min-width:110px">
+      <button class="btn btn-ghost btn-sm" onclick="renderSalesHistory()">Apply</button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('sh-from').value='';document.getElementById('sh-to').value='';renderSalesHistory()">All</button>
+    </div>
+    <div id="sh-stats" class="stats-grid stats-2" style="margin-bottom:14px"></div>
+    <div id="sh-list"></div>
+    <div class="mt12"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-sales-history')">Close</button></div>
+  </div>
+</div>
+
+<!-- Buyers List Sheet -->
+<div class="overlay" id="ov-buyers-list">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Buyers &amp; Processors</div>
+    <div class="form-row" style="margin-bottom:12px">
+      <div class="form-group">
+        <label class="fl">Name *</label>
+        <input type="text" id="nb-name" placeholder="Buyer or processor name">
+      </div>
+      <div class="form-group">
+        <label class="fl">Notes</label>
+        <input type="text" id="nb-notes" placeholder="Optional">
+      </div>
+    </div>
+    <button class="btn btn-primary btn-sm" onclick="addBuyer()" style="margin-bottom:16px">Add Buyer</button>
+    <div id="buyers-list-el"></div>
+    <div class="mt12"><button class="btn btn-ghost btn-full" onclick="closeBuyersListSheet()">Close</button></div>
+  </div>
+</div>
+
+<!-- Buyer Detail Sheet -->
+<div class="overlay" id="ov-buyer-detail">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="buyer-detail-title">Buyer Detail</div>
+    <div id="buyer-detail-content"></div>
+    <div class="mt12"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-buyer-detail')">Close</button></div>
+  </div>
+</div>
+
+<!-- Picker Full History Sheet -->
+<div class="overlay" id="ov-picker-history">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title" id="ph-title">Picker History</div>
+    <div id="ph-content"></div>
+    <div class="mt12"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-picker-history')">Close</button></div>
+  </div>
+</div>
+
+<!-- Edit Buyer Overlay -->
+<div class="overlay" id="ov-edit-buyer">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-title">Edit Buyer</div>
+    <div class="form-group">
+      <label class="fl">Name *</label>
+      <input type="text" id="eb-name" placeholder="Buyer name">
+    </div>
+    <div class="form-group">
+      <label class="fl">Notes</label>
+      <input type="text" id="eb-notes" placeholder="Optional">
+    </div>
+    <input type="hidden" id="eb-id">
+    <button class="btn btn-primary" onclick="saveEditBuyer()">Save</button>
+    <div class="mt8"><button class="btn btn-ghost btn-full" onclick="closeOverlay('ov-edit-buyer')">Cancel</button></div>
   </div>
 </div>
 
 <!-- CONFIRM MODAL -->
 <div class="confirm-modal" id="confirm-modal">
   <div class="confirm-box">
-    <h3 id="confirm-title">Are you sure?</h3>
-    <p id="confirm-msg">This action cannot be undone.</p>
+    <h3 id="cm-title">Are you sure?</h3>
+    <p id="cm-msg">This cannot be undone.</p>
     <div class="confirm-btns">
       <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
-      <button class="btn btn-danger" id="confirm-ok-btn">Delete</button>
+      <button class="btn btn-danger" id="cm-ok">Delete</button>
     </div>
   </div>
 </div>
@@ -976,166 +1227,162 @@ textarea{resize:vertical;min-height:70px}
 
 <script>
 // ════════════════════════════════════════════════════════
-//  STORAGE
+//  DATA STORE
 // ════════════════════════════════════════════════════════
-const DB_KEY = 'bfm2_data';
+const DB_KEY = 'bfm3';
 let DB = {
-  pickers: [],      // {id,name,rate,phone,notes,archived}
-  logs: [],         // {id,pickerId,date,time,lbs,notes,createdAt}
-  payments: [],     // {id,pickerId,amount,date,notes}
-  sales: [],        // {id,buyer,lbs,rate,date,notes}
-  fertTypes: [],    // {id,name,notes,color}
-  fertLogs: [],     // {id,typeId,date,amount,hours,notes}
-  labourTypes: [],  // {id,name,notes}
-  labourLogs: [],   // {id,typeId,date,hours,notes}
-  dayPickers: {},   // {dateStr: [pickerId, ...]}
+  pickers:[],     // {id,name,rate,phone,notes,archived}
+  logs:[],        // {id,pickerId,date,time,lbs,notes,createdAt}
+  payments:[],    // {id,pickerId,amount,date,notes}
+  sales:[],       // {id,buyer,lbs,rate,date,notes}
+  fertTypes:[],   // {id,name,notes}
+  fertLogs:[],    // {id,typeId,date,amount,hours,notes}
+  labourTypes:[], // {id,name,notes}
+  labourLogs:[],  // {id,typeId,date,hours,notes}
+  dayPickers:{},  // dateStr -> [pickerId,...]
+  buyers:[],      // {id,name,notes}
 };
 
 function saveDB(){localStorage.setItem(DB_KEY,JSON.stringify(DB))}
 function loadDB(){
-  const d=localStorage.getItem(DB_KEY);
-  if(d){try{DB={...DB,...JSON.parse(d)}}catch(e){}}
-  if(!DB.pickers)DB.pickers=[];
-  if(!DB.logs)DB.logs=[];
-  if(!DB.payments)DB.payments=[];
-  if(!DB.sales)DB.sales=[];
-  if(!DB.fertTypes)DB.fertTypes=[];
-  if(!DB.fertLogs)DB.fertLogs=[];
-  if(!DB.labourTypes)DB.labourTypes=[];
-  if(!DB.labourLogs)DB.labourLogs=[];
-  if(!DB.dayPickers)DB.dayPickers={};
+  try{const d=localStorage.getItem(DB_KEY);if(d)DB={...DB,...JSON.parse(d)}}catch(e){}
+  ['pickers','logs','payments','sales','fertTypes','fertLogs','labourTypes','labourLogs','buyers'].forEach(k=>{if(!Array.isArray(DB[k]))DB[k]=[]});
+  if(!DB.dayPickers||typeof DB.dayPickers!=='object')DB.dayPickers={};
 }
-
-function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 
 // ════════════════════════════════════════════════════════
 //  DATE HELPERS
 // ════════════════════════════════════════════════════════
-let currentDayOffset = 0;
-let currentSeasonYear = new Date().getFullYear();
+let _dayOffset = 0;          // relative to today
+let _seasonYear = new Date().getFullYear();
+let _fertMonthOffset = 0;    // months relative to current month
 
 function todayStr(){
-  const d=new Date();
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  const d=new Date();return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
 }
-function pad(n){return String(n).padStart(2,'0')}
-function offsetDate(offset){
+function p2(n){return String(n).padStart(2,'0')}
+function dateByOffset(offset){
   const d=new Date();d.setDate(d.getDate()+offset);
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+  return `${d.getFullYear()}-${p2(d.getMonth()+1)}-${p2(d.getDate())}`;
 }
-function formatDateNice(str){
-  if(!str)return'';
-  const d=new Date(str+'T12:00:00');
+function fmtNice(s){
+  if(!s)return'';
+  const d=new Date(s+'T12:00:00');
   return d.toLocaleDateString('en-CA',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
 }
-function formatDateShort(str){
-  if(!str)return'';
-  const d=new Date(str+'T12:00:00');
+function fmtShort(s){
+  if(!s)return'';
+  const d=new Date(s+'T12:00:00');
   return d.toLocaleDateString('en-CA',{month:'short',day:'numeric'});
 }
-function nowTimeStr(){
-  const d=new Date();return`${pad(d.getHours())}:${pad(d.getMinutes())}`;
+function fmtMonth(yr,mo){
+  return new Date(yr,mo,1).toLocaleDateString('en-CA',{month:'long',year:'numeric'});
 }
+function fmt12(t){
+  if(!t)return'—';
+  const[h,m]=t.split(':').map(Number);
+  const ampm=h>=12?'PM':'AM';
+  const hr=h%12||12;
+  return`${hr}:${p2(m)} ${ampm}`;
+}
+function nowTime(){const d=new Date();return`${p2(d.getHours())}:${p2(d.getMinutes())}`}
 function fmtMoney(n){return'$'+Number(n||0).toFixed(2)}
+function fmtLbs(n){return parseFloat(n||0).toFixed(1)}
+
+function currentDayStr(){return dateByOffset(_dayOffset)}
 
 // ════════════════════════════════════════════════════════
 //  NAVIGATION
 // ════════════════════════════════════════════════════════
-let pageStack = ['pickers'];
-const PAGES = {
-  pickers:'page-pickers', farm:'page-farm',
-  'picker-detail':'page-picker-detail',
-  fertilizer:'page-fertilizer', labour:'page-labour'
-};
+let _pageStack = ['pickers'];
 
-function switchMainPage(name){
-  pageStack=['pickers','farm'].includes(name)?[name]:pageStack;
-  showPage(name);
-  document.querySelectorAll('.bnav-btn').forEach(b=>b.classList.remove('active'));
-  const target = name==='farm'||name==='fertilizer'||name==='labour'?'farm':'pickers';
-  document.getElementById('bnav-'+target).classList.add('active');
-  document.getElementById('nav-back-btn').classList.add('hidden');
-  document.getElementById('nav-title').textContent='🫐 Berry Farm';
-  if(name==='farm')renderFarmSeason();
+function switchMain(name){
+  _pageStack=[name];
+  _showPage(name==='pickers'?'pickers':'farm');
+  ['pickers','farm'].forEach(k=>{
+    document.getElementById('snav-'+k)?.classList.toggle('active',k===name);
+    document.getElementById('mnav-'+k)?.classList.toggle('active',k===name);
+  });
+  document.getElementById('topbar-back').classList.add('hidden');
+  document.getElementById('topbar-title').textContent='Berry Farm Manager';
+  if(name==='farm'){renderFarmSeason();renderSales();renderOpsQuick();}
   if(name==='pickers'){renderDayView();renderPickerDB();renderPayroll();}
 }
 
-function showPage(name){
+function _showPage(id){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(PAGES[name]||'page-'+name).classList.add('active');
+  document.getElementById('page-'+id)?.classList.add('active');
 }
 
 function goBack(){
-  pageStack.pop();
-  const prev=pageStack[pageStack.length-1]||'pickers';
-  showPage(prev);
+  _pageStack.pop();
+  const prev=_pageStack[_pageStack.length-1]||'pickers';
+  _showPage(prev);
   if(prev==='pickers'||prev==='farm'){
-    document.getElementById('nav-back-btn').classList.add('hidden');
-    document.getElementById('nav-title').textContent='🫐 Berry Farm';
+    document.getElementById('topbar-back').classList.add('hidden');
   }
   if(prev==='pickers')renderDayView();
+  if(prev==='farm')renderOpsQuick();
 }
 
-function pushPage(name,title){
-  pageStack.push(name);
-  showPage(name);
-  document.getElementById('nav-back-btn').classList.remove('hidden');
-  document.getElementById('nav-title').textContent=title||'';
+function _pushPage(id,title){
+  _pageStack.push(id);
+  _showPage(id);
+  document.getElementById('topbar-back').classList.remove('hidden');
+  document.getElementById('topbar-title').textContent=title||'';
 }
 
-function goToOpsPage(type){
-  const t=type==='fertilizer'?'🌿 Fertilizer':'🔧 Labour';
-  pushPage(type,t);
-  if(type==='fertilizer'){renderFertPage()}
-  else{renderLabourPage()}
-}
-
-function switchPickerTab(tab){
+function switchPickerTab(tab,btn){
   document.querySelectorAll('#page-pickers .tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('#page-pickers .tab-panel').forEach(p=>p.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  btn.classList.add('active');
   document.getElementById('pt-'+tab).classList.add('active');
   if(tab==='payroll')renderPayroll();
   if(tab==='database')renderPickerDB();
-  if(tab==='log'){populateLogEntryPickers();}
+  if(tab==='log'){populateLogPickers();
+    // pre-fill date and time (bug #6 fix)
+    document.getElementById('le-date').value=todayStr();
+    document.getElementById('le-time').value=nowTime();
+  }
 }
 
-function switchFarmTab(tab){
+function switchFarmTab(tab,btn){
   document.querySelectorAll('#page-farm .tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('#page-farm .tab-panel').forEach(p=>p.classList.remove('active'));
-  event.currentTarget.classList.add('active');
+  btn.classList.add('active');
   document.getElementById('ft-'+tab).classList.add('active');
   if(tab==='season')renderFarmSeason();
   if(tab==='sales')renderSales();
-  if(tab==='ops')renderOpsQuick();
+  if(tab==='ops'){renderOpsQuick();}
+}
+
+function goToOps(type){
+  const title=type==='fertilizer'?'Fertilizer':'Labour';
+  _pushPage(type,title);
+  if(type==='fertilizer')renderFertPage();
+  else renderLabourPage();
 }
 
 // ════════════════════════════════════════════════════════
-//  OVERLAY MANAGEMENT
+//  OVERLAY + CONFIRM
 // ════════════════════════════════════════════════════════
 function openOverlay(id){document.getElementById(id).classList.add('open')}
 function closeOverlay(id){document.getElementById(id).classList.remove('open')}
-
-// close on backdrop click
 document.querySelectorAll('.overlay').forEach(ov=>{
   ov.addEventListener('click',e=>{if(e.target===ov)ov.classList.remove('open')});
 });
 
-// ════════════════════════════════════════════════════════
-//  CONFIRM
-// ════════════════════════════════════════════════════════
 let _confirmCb=null;
 function showConfirm(title,msg,okLabel,cb){
-  document.getElementById('confirm-title').textContent=title;
-  document.getElementById('confirm-msg').textContent=msg;
-  document.getElementById('confirm-ok-btn').textContent=okLabel||'Delete';
+  document.getElementById('cm-title').textContent=title;
+  document.getElementById('cm-msg').textContent=msg;
+  document.getElementById('cm-ok').textContent=okLabel||'Delete';
   _confirmCb=cb;
   document.getElementById('confirm-modal').classList.add('open');
 }
 function closeConfirm(){document.getElementById('confirm-modal').classList.remove('open');_confirmCb=null}
-document.getElementById('confirm-ok-btn').onclick=function(){
-  if(_confirmCb)_confirmCb();closeConfirm();
-};
+document.getElementById('cm-ok').onclick=()=>{if(_confirmCb)_confirmCb();closeConfirm()};
 
 // ════════════════════════════════════════════════════════
 //  TOAST
@@ -1144,126 +1391,189 @@ let _toastT;
 function toast(msg){
   const el=document.getElementById('toast');
   el.textContent=msg;el.classList.add('show');
-  clearTimeout(_toastT);_toastT=setTimeout(()=>el.classList.remove('show'),2600);
+  clearTimeout(_toastT);_toastT=setTimeout(()=>el.classList.remove('show'),2700);
+}
+
+// ════════════════════════════════════════════════════════
+//  DATE PICKER TRIGGER (calendar icon click opens native picker)
+// ════════════════════════════════════════════════════════
+function triggerDatePicker(inputId){
+  const el=document.getElementById(inputId);
+  // showPicker() fails in cross-origin iframes — use a visible inline input instead
+  el.style.position='';el.style.opacity='';el.style.pointerEvents='';
+  el.style.width='';el.style.height='';el.style.top='';el.style.left='';
+  el.classList.add('dn-input-visible');
+  el.focus();
+  // hide again after interaction
+  const hide=()=>{el.classList.remove('dn-input-visible');el.removeEventListener('blur',hide);el.removeEventListener('change',hide)};
+  el.addEventListener('blur',hide);
+  el.addEventListener('change',hide);
+}
+
+function jumpToDate(context,val){
+  if(!val)return;
+  if(context==='day'){
+    const today=new Date(todayStr()+'T12:00:00');
+    const chosen=new Date(val+'T12:00:00');
+    _dayOffset=Math.round((chosen-today)/(86400000));
+    renderDayView();
+  }
 }
 
 // ════════════════════════════════════════════════════════
 //  DAY VIEW
 // ════════════════════════════════════════════════════════
 function shiftDay(d){
-  currentDayOffset+=d;
-  const today=offsetDate(0);
-  const cur=offsetDate(currentDayOffset);
-  document.getElementById('day-next-btn').disabled=currentDayOffset>=0;
+  _dayOffset+=d;
   renderDayView();
 }
 
 function renderDayView(){
-  const dateStr=offsetDate(currentDayOffset);
-  const isToday=currentDayOffset===0;
-  const label=isToday?'Today':formatDateShort(dateStr);
-  document.getElementById('day-label').textContent=label;
-  document.getElementById('day-sub').textContent=isToday?formatDateNice(dateStr):'';
+  const dateStr=currentDayStr();
+  const isToday=_dayOffset===0;
+  const isFuture=_dayOffset>0;
 
+  // Label
+  document.getElementById('day-label').childNodes[0].textContent=
+    isToday?'Today':isFuture?'Future: '+fmtShort(dateStr):fmtShort(dateStr);
+  document.getElementById('day-sub').textContent=isToday?fmtNice(dateStr):'';
+  document.getElementById('day-date-input').value=dateStr;
+
+  // Stats
+  const dayLogs=DB.logs.filter(l=>l.date===dateStr);
+  const totalLbs=dayLogs.reduce((s,l)=>s+(parseFloat(l.lbs)||0),0);
+  const totalPay=dayLogs.reduce((s,l)=>{
+    const p=DB.pickers.find(x=>x.id===l.pickerId);
+    return s+(parseFloat(l.lbs)||0)*(parseFloat(p?.rate)||0);
+  },0);
   const pickerIds=(DB.dayPickers[dateStr]||[]);
   const activePickers=DB.pickers.filter(p=>!p.archived&&pickerIds.includes(p.id));
 
-  // compute stats for this day
-  const dayLogs=DB.logs.filter(l=>l.date===dateStr);
-  let totalLbs=0,totalPay=0;
-  dayLogs.forEach(l=>{
-    const p=DB.pickers.find(x=>x.id===l.pickerId);
-    totalLbs+=parseFloat(l.lbs)||0;
-    totalPay+=(parseFloat(l.lbs)||0)*(parseFloat(p?.rate)||0);
-  });
-  document.getElementById('ds-lbs').textContent=totalLbs.toFixed(1);
+  document.getElementById('ds-lbs').textContent=fmtLbs(totalLbs);
   document.getElementById('ds-pay').textContent=fmtMoney(totalPay);
-  document.getElementById('ds-pickers').textContent=activePickers.length;
+  document.getElementById('ds-count').textContent=activePickers.length;
 
+  // Picker list
   const el=document.getElementById('day-pickers-list');
   if(!activePickers.length){
-    el.innerHTML=`<div class="empty-state"><span class="ei">👷</span><p>No pickers added for this day.</p></div>`;
-    return;
+    el.innerHTML=`<div class="empty-state"><span class="ei">—</span><p>No pickers added for this day.</p></div>`;
+  } else {
+    el.innerHTML=activePickers.map(p=>{
+      const pLogs=dayLogs.filter(l=>l.pickerId===p.id);
+      const lbs=pLogs.reduce((s,l)=>s+(parseFloat(l.lbs)||0),0);
+      return`<div class="picker-row" onclick="openPickerDetail('${p.id}','${dateStr}')">
+        <div>
+          <div class="pr-name">${p.name}</div>
+          <div class="pr-sub">${pLogs.length} log${pLogs.length!==1?'s':''}</div>
+        </div>
+        <div class="pr-right">
+          <div class="pr-lbs">${fmtLbs(lbs)} lbs</div>
+          <div class="pr-pay">${fmtMoney(lbs*(parseFloat(p.rate)||0))}</div>
+        </div>
+      </div>`;
+    }).join('');
+    // Manage roster link
+    el.innerHTML+=`<button class="btn btn-ghost btn-sm btn-full" style="margin-bottom:10px" onclick="openRemoveDayPicker()">Manage Day Roster</button>`;
   }
-  el.innerHTML=activePickers.map(p=>{
-    const pLogs=dayLogs.filter(l=>l.pickerId===p.id);
-    const lbs=pLogs.reduce((s,l)=>s+(parseFloat(l.lbs)||0),0);
-    return`<div class="picker-row" onclick="openPickerDetail('${p.id}','${dateStr}')">
-      <div>
-        <div class="pr-name">${p.name}</div>
-        <div class="pr-sub">${pLogs.length} log${pLogs.length!==1?'s':''}</div>
-      </div>
-      <div class="pr-right">
-        <div class="pr-lbs">${lbs.toFixed(1)} lbs</div>
-        <div class="pr-pay">${fmtMoney(lbs*parseFloat(p.rate||0))}</div>
-      </div>
-    </div>`;
-  }).join('');
 }
 
+// Add Picker to Day — stays open, multi-select (bug #7 fix)
 function openAddPickerToDay(){
-  const dateStr=offsetDate(currentDayOffset);
+  const dateStr=currentDayStr();
   const existing=DB.dayPickers[dateStr]||[];
-  const available=DB.pickers.filter(p=>!p.archived&&!existing.includes(p.id));
+  const available=DB.pickers.filter(p=>!p.archived);
   const el=document.getElementById('add-day-picker-list');
   if(!available.length){
-    el.innerHTML=`<div class="empty-state"><p>All pickers already added, or no pickers in database.</p></div>`;
+    el.innerHTML=`<div class="empty-state"><p>No pickers in database yet.</p></div>`;
   } else {
-    el.innerHTML=available.map(p=>`
-      <div class="picker-row" onclick="addPickerToDay('${p.id}')">
-        <div><div class="pr-name">${p.name}</div><div class="pr-sub">${fmtMoney(p.rate)}/lb</div></div>
-        <span style="color:var(--berry);font-size:1.4rem;font-weight:700">+</span>
-      </div>`).join('');
+    el.innerHTML=available.map(p=>{
+      const added=existing.includes(p.id);
+      return`<div class="picker-row" id="dpprow-${p.id}" style="cursor:pointer;${added?'opacity:0.5':''}">
+        <div onclick="${added?'':''}_toggleDayPicker('${p.id}')">
+          <div class="pr-name">${p.name}</div>
+          <div class="pr-sub">${fmtMoney(p.rate)}/lb</div>
+        </div>
+        <button class="btn ${added?'btn-ghost btn-sm':'btn-primary btn-sm'}" style="width:auto"
+          onclick="_toggleDayPicker('${p.id}')">${added?'Added':'Add'}</button>
+      </div>`;
+    }).join('');
   }
-  openOverlay('overlay-add-day-picker');
+  openOverlay('ov-add-day-picker');
 }
 
-function addPickerToDay(pickerId){
-  const dateStr=offsetDate(currentDayOffset);
+function _toggleDayPicker(pickerId){
+  const dateStr=currentDayStr();
   if(!DB.dayPickers[dateStr])DB.dayPickers[dateStr]=[];
-  if(!DB.dayPickers[dateStr].includes(pickerId))DB.dayPickers[dateStr].push(pickerId);
-  saveDB();renderDayView();closeOverlay('overlay-add-day-picker');
-  toast('Picker added to day');
+  const idx=DB.dayPickers[dateStr].indexOf(pickerId);
+  if(idx>=0){
+    DB.dayPickers[dateStr].splice(idx,1);
+  } else {
+    DB.dayPickers[dateStr].push(pickerId);
+  }
+  saveDB();
+  // Refresh the list inside the overlay without closing
+  openAddPickerToDay();
+  renderDayView();
+}
+
+function openRemoveDayPicker(){
+  const dateStr=currentDayStr();
+  const pickerIds=DB.dayPickers[dateStr]||[];
+  const pickers=DB.pickers.filter(p=>pickerIds.includes(p.id));
+  const el=document.getElementById('remove-day-picker-list');
+  el.innerHTML=pickers.length?pickers.map(p=>
+    `<div class="picker-row">
+      <div><div class="pr-name">${p.name}</div></div>
+      <button class="act-btn act-del" onclick="removeDayPicker('${p.id}')">Remove</button>
+    </div>`
+  ).join(''):`<div class="empty-state"><p>No pickers on this day's roster.</p></div>`;
+  openOverlay('ov-remove-day-picker');
+}
+
+function removeDayPicker(pickerId){
+  const dateStr=currentDayStr();
+  DB.dayPickers[dateStr]=(DB.dayPickers[dateStr]||[]).filter(x=>x!==pickerId);
+  saveDB();renderDayView();openRemoveDayPicker();
+  toast('Picker removed from day');
 }
 
 // ════════════════════════════════════════════════════════
 //  PICKER DETAIL
 // ════════════════════════════════════════════════════════
-let _detailPickerId=null, _detailDateStr=null, _detailLogId=null;
+let _detailPickerId=null,_detailDateStr=null,_detailLogId=null;
 
 function openPickerDetail(pickerId,dateStr){
   _detailPickerId=pickerId;_detailDateStr=dateStr;
-  pushPage('picker-detail','');
+  _pushPage('picker-detail','');
   renderPickerDetail();
 }
 
 function renderPickerDetail(){
-  const p=DB.pickers.find(x=>x.id===_detailPickerId);
-  if(!p)return;
-  document.getElementById('nav-title').textContent=p.name;
-  const dayLogs=DB.logs.filter(l=>l.pickerId===_detailPickerId&&l.date===_detailDateStr);
+  const p=DB.pickers.find(x=>x.id===_detailPickerId);if(!p)return;
+  document.getElementById('topbar-title').textContent=p.name;
+  const dayLogs=DB.logs.filter(l=>l.pickerId===_detailPickerId&&l.date===_detailDateStr)
+    .sort((a,b)=>b.createdAt-a.createdAt);
   const totalLbs=dayLogs.reduce((s,l)=>s+(parseFloat(l.lbs)||0),0);
   const totalPay=totalLbs*(parseFloat(p.rate)||0);
 
-  const el=document.getElementById('picker-detail-content');
-  el.innerHTML=`
+  document.getElementById('picker-detail-content').innerHTML=`
     <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
-        <span class="syne" style="font-size:1.3rem;font-weight:800;color:var(--berry)">${p.name}</span>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:10px">
+        <div>
+          <div class="serif bold" style="font-size:1.2rem;color:var(--forest)">${p.name}</div>
+          <div class="text-muted text-sm">${fmtNice(_detailDateStr)}</div>
+        </div>
         <span class="chip chip-green">${fmtMoney(p.rate)}/lb</span>
       </div>
-      <div class="text-muted text-sm">${formatDateNice(_detailDateStr)}</div>
-      <hr class="divider">
-      <div class="stats-grid">
-        <div class="stat-box"><div class="sv">${totalLbs.toFixed(1)}</div><div class="sl">lbs picked</div></div>
-        <div class="stat-box"><div class="sv">${fmtMoney(p.rate)}</div><div class="sl">per lb</div></div>
+      <div class="stats-grid stats-3 mb0">
+        <div class="stat-box"><div class="sv">${fmtLbs(totalLbs)}</div><div class="sl">lbs</div></div>
+        <div class="stat-box"><div class="sv">${fmtMoney(parseFloat(p.rate))}</div><div class="sl">per lb</div></div>
         <div class="stat-box"><div class="sv">${fmtMoney(totalPay)}</div><div class="sl">owed</div></div>
       </div>
     </div>
-    <button class="btn-add" onclick="openAddLogSheet()">＋ Add Log</button>
-    <div class="sec-hdr"><h3>Today's Logs</h3></div>
-    <div id="picker-logs-list"></div>
-  `;
+    <button class="btn-add" onclick="openAddLogSheet()">+ Add Log</button>
+    <div class="sec-hdr"><h3>Logs for this Day</h3></div>
+    <div id="picker-logs-list"></div>`;
   renderPickerLogs();
 }
 
@@ -1271,19 +1581,17 @@ function renderPickerLogs(){
   const dayLogs=DB.logs.filter(l=>l.pickerId===_detailPickerId&&l.date===_detailDateStr)
     .sort((a,b)=>b.createdAt-a.createdAt);
   const el=document.getElementById('picker-logs-list');
-  if(!dayLogs.length){
-    el.innerHTML=`<div class="empty-state"><span class="ei">📋</span><p>No logs yet.</p></div>`;return;
-  }
+  if(!dayLogs.length){el.innerHTML=`<div class="empty-state"><span class="ei">—</span><p>No logs yet.</p></div>`;return}
   el.innerHTML=dayLogs.map(l=>`
     <div class="log-item" onclick="openLogDetail('${l.id}')">
       <div class="li-main">
-        <div class="li-time">${l.time||'—'}</div>
+        <div class="li-time">${fmt12(l.time)}</div>
         <div class="li-note">${l.notes||'No notes'}</div>
       </div>
-      <div class="li-lbs">${parseFloat(l.lbs).toFixed(1)} lbs</div>
+      <div class="li-val">${fmtLbs(l.lbs)} lbs</div>
       <div class="li-actions" onclick="event.stopPropagation()">
-        <button class="icon-btn" onclick="openEditLog('${l.id}')">✏️</button>
-        <button class="icon-btn del" onclick="confirmDeleteLog('${l.id}')">🗑</button>
+        <button class="act-btn act-edit" onclick="openEditLog('${l.id}')">Edit</button>
+        <button class="act-btn act-del" onclick="confirmDelLog('${l.id}')">Delete</button>
       </div>
     </div>`).join('');
 }
@@ -1293,12 +1601,12 @@ function openAddLogSheet(){
   document.getElementById('al-picker-name').value=p?p.name:'';
   document.getElementById('al-picker-id').value=_detailPickerId;
   document.getElementById('al-date').value=_detailDateStr;
-  document.getElementById('al-time').value=nowTimeStr();
+  document.getElementById('al-time').value=nowTime();
   document.getElementById('al-lbs').value='';
   document.getElementById('al-notes').value='';
   document.getElementById('al-edit-id').value='';
-  document.getElementById('overlay-add-log').querySelector('.sheet-title').textContent='Add Log';
-  openOverlay('overlay-add-log');
+  document.getElementById('al-title').textContent='Add Log';
+  openOverlay('ov-add-log');
 }
 
 function openEditLog(logId){
@@ -1311,9 +1619,9 @@ function openEditLog(logId){
   document.getElementById('al-lbs').value=l.lbs;
   document.getElementById('al-notes').value=l.notes||'';
   document.getElementById('al-edit-id').value=logId;
-  document.getElementById('overlay-add-log').querySelector('.sheet-title').textContent='Edit Log';
-  closeOverlay('overlay-log-detail');
-  openOverlay('overlay-add-log');
+  document.getElementById('al-title').textContent='Edit Log';
+  closeOverlay('ov-log-detail');
+  openOverlay('ov-add-log');
 }
 
 function saveLog(){
@@ -1330,8 +1638,8 @@ function saveLog(){
     createdAt:editId?(DB.logs.find(x=>x.id===editId)?.createdAt||Date.now()):Date.now()
   };
   if(editId){DB.logs=DB.logs.map(x=>x.id===editId?entry:x)}
-  else{DB.logs.push(entry)}
-  saveDB();closeOverlay('overlay-add-log');
+  else DB.logs.push(entry);
+  saveDB();closeOverlay('ov-add-log');
   renderPickerDetail();renderDayView();
   toast(editId?'Log updated':'Log saved');
 }
@@ -1341,24 +1649,22 @@ function openLogDetail(logId){
   const l=DB.logs.find(x=>x.id===logId);if(!l)return;
   const p=DB.pickers.find(x=>x.id===l.pickerId);
   document.getElementById('log-detail-content').innerHTML=`
-    <div style="display:grid;gap:10px">
-      <div><div class="text-muted text-sm" style="margin-bottom:2px">Picker</div><div class="font-bold">${p?p.name:'Unknown'}</div></div>
+    <div style="display:grid;gap:12px">
+      <div><div class="text-xs text-muted" style="margin-bottom:2px">Picker</div><div class="bold">${p?p.name:'Unknown'}</div></div>
       <div class="form-row">
-        <div><div class="text-muted text-sm">Date</div><div class="font-bold">${formatDateNice(l.date)}</div></div>
-        <div><div class="text-muted text-sm">Time</div><div class="font-bold">${l.time||'—'}</div></div>
+        <div><div class="text-xs text-muted">Date</div><div class="bold">${fmtNice(l.date)}</div></div>
+        <div><div class="text-xs text-muted">Time</div><div class="bold">${fmt12(l.time)}</div></div>
       </div>
-      <div><div class="text-muted text-sm">Pounds</div><div class="syne" style="font-size:1.5rem;font-weight:800;color:var(--berry)">${parseFloat(l.lbs).toFixed(1)} lbs</div></div>
-      ${l.notes?`<div><div class="text-muted text-sm">Notes</div><div>${l.notes}</div></div>`:''}
+      <div><div class="text-xs text-muted">Pounds</div>
+        <div class="serif bold" style="font-size:1.4rem;color:var(--forest)">${fmtLbs(l.lbs)} lbs</div></div>
+      ${l.notes?`<div><div class="text-xs text-muted">Notes</div><div>${l.notes}</div></div>`:''}
     </div>`;
-  openOverlay('overlay-log-detail');
+  openOverlay('ov-log-detail');
 }
 
 function editLogFromDetail(){openEditLog(_detailLogId)}
-function deleteLogFromDetail(){
-  closeOverlay('overlay-log-detail');
-  confirmDeleteLog(_detailLogId);
-}
-function confirmDeleteLog(logId){
+function deleteLogFromDetail(){closeOverlay('ov-log-detail');confirmDelLog(_detailLogId)}
+function confirmDelLog(logId){
   showConfirm('Delete Log?','This log entry will be permanently removed.','Delete',()=>{
     DB.logs=DB.logs.filter(x=>x.id!==logId);
     saveDB();renderPickerDetail();renderDayView();toast('Log deleted');
@@ -1366,29 +1672,43 @@ function confirmDeleteLog(logId){
 }
 
 // ════════════════════════════════════════════════════════
-//  LOG ENTRY TAB (freeform)
+//  LOG ENTRY TAB (freeform, bug #5 & #6 fixed)
 // ════════════════════════════════════════════════════════
-function populateLogEntryPickers(){
+function populateLogPickers(){
   const sel=document.getElementById('le-picker');
+  const prev=sel.value;
   sel.innerHTML='<option value="">— Select Picker —</option>'+
     DB.pickers.filter(p=>!p.archived).map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  if(prev)sel.value=prev;
 }
 
+function showLogError(msg){
+  const el=document.getElementById('le-error');
+  el.textContent=msg;el.classList.remove('hidden');
+}
+function clearLogError(){document.getElementById('le-error').classList.add('hidden')}
+
 function submitLogEntry(){
+  clearLogError();
   const pickerId=document.getElementById('le-picker').value;
   const lbs=parseFloat(document.getElementById('le-lbs').value);
   const date=document.getElementById('le-date').value;
-  const time=document.getElementById('le-time').value;
-  if(!pickerId){toast('Select a picker');return}
-  if(!lbs||lbs<=0){toast('Enter pounds picked');return}
-  if(!date){toast('Select a date');return}
-  DB.logs.push({id:uid(),pickerId,date,time,lbs,notes:document.getElementById('le-notes').value.trim(),createdAt:Date.now()});
-  // Also add picker to day if not there
+  if(!pickerId){showLogError('Please select a picker.');return}
+  if(!date){showLogError('Please select a date.');return}
+  if(!lbs||lbs<=0){showLogError('Please enter a valid pounds amount.');return}
+  DB.logs.push({
+    id:uid(),pickerId,date,
+    time:document.getElementById('le-time').value,
+    lbs,
+    notes:document.getElementById('le-notes').value.trim(),
+    createdAt:Date.now()
+  });
   if(!DB.dayPickers[date])DB.dayPickers[date]=[];
   if(!DB.dayPickers[date].includes(pickerId))DB.dayPickers[date].push(pickerId);
   saveDB();
   document.getElementById('le-lbs').value='';
   document.getElementById('le-notes').value='';
+  clearLogError();
   renderDayView();
   toast('Log entry saved');
 }
@@ -1402,43 +1722,49 @@ function openAddPickerSheet(){
   document.getElementById('ap-phone').value='';
   document.getElementById('ap-notes').value='';
   document.getElementById('ap-edit-id').value='';
-  document.getElementById('add-picker-title').textContent='Add Picker';
-  openOverlay('overlay-add-picker');
+  document.getElementById('ap-title').textContent='Add Picker';
+  openOverlay('ov-add-picker');
 }
 
 function openEditPicker(id){
   const p=DB.pickers.find(x=>x.id===id);if(!p)return;
   document.getElementById('ap-name').value=p.name;
-  document.getElementById('ap-rate').value=p.rate;
+  document.getElementById('ap-rate').value=Number(p.rate).toFixed(2); // fix #11
   document.getElementById('ap-phone').value=p.phone||'';
   document.getElementById('ap-notes').value=p.notes||'';
   document.getElementById('ap-edit-id').value=id;
-  document.getElementById('add-picker-title').textContent='Edit Picker';
-  openOverlay('overlay-add-picker');
+  document.getElementById('ap-title').textContent='Edit Picker';
+  openOverlay('ov-add-picker');
 }
 
 function savePicker(){
   const name=document.getElementById('ap-name').value.trim();
-  const rate=document.getElementById('ap-rate').value;
+  const rate=parseFloat(document.getElementById('ap-rate').value);
   if(!name){toast('Enter a name');return}
-  if(!rate){toast('Enter a pay rate');return}
+  if(!rate||rate<=0){toast('Enter a valid pay rate');return}
   const editId=document.getElementById('ap-edit-id').value;
   const entry={
-    id:editId||uid(),
-    name,rate:parseFloat(rate),
+    id:editId||uid(),name,rate,
     phone:document.getElementById('ap-phone').value.trim(),
     notes:document.getElementById('ap-notes').value.trim(),
     archived:false
   };
-  if(editId){DB.pickers=DB.pickers.map(x=>x.id===editId?{...x,...entry}:x)}
-  else{DB.pickers.push(entry)}
-  saveDB();closeOverlay('overlay-add-picker');renderPickerDB();renderPayroll();
+  if(editId)DB.pickers=DB.pickers.map(x=>x.id===editId?{...x,...entry}:x);
+  else DB.pickers.push(entry);
+  saveDB();closeOverlay('ov-add-picker');
+  renderPickerDB();populateLogPickers();renderPayroll();
   toast(editId?'Picker updated':'Picker added');
 }
 
+// Archive requires confirmation (bug #8 fix)
 function archivePicker(id){
-  DB.pickers=DB.pickers.map(p=>p.id===id?{...p,archived:true}:p);
-  saveDB();renderPickerDB();toast('Picker archived');
+  const p=DB.pickers.find(x=>x.id===id);
+  showConfirm(`Archive ${p?p.name:'picker'}?`,
+    'They will be hidden from active lists. Their data is preserved and they can be restored at any time.',
+    'Archive',()=>{
+      DB.pickers=DB.pickers.map(x=>x.id===id?{...x,archived:true}:x);
+      saveDB();renderPickerDB();toast('Picker archived');
+    });
 }
 
 function restorePicker(id){
@@ -1448,7 +1774,8 @@ function restorePicker(id){
 
 function deletePicker(id){
   const p=DB.pickers.find(x=>x.id===id);
-  showConfirm(`Delete ${p?p.name:'picker'}?`,'All their logs, entries and data will be permanently erased. This cannot be undone.','Delete Forever',()=>{
+  showConfirm(`Delete ${p?p.name:'picker'} permanently?`,
+    'All logs, payments, and data for this picker will be erased. This cannot be undone.','Delete Forever',()=>{
     DB.pickers=DB.pickers.filter(x=>x.id!==id);
     DB.logs=DB.logs.filter(x=>x.pickerId!==id);
     DB.payments=DB.payments.filter(x=>x.pickerId!==id);
@@ -1460,86 +1787,110 @@ function deletePicker(id){
 }
 
 function renderPickerDB(){
-  const active=DB.pickers.filter(p=>!p.archived);
+  const q=(document.getElementById('picker-search').value||'').toLowerCase();
+  const active=DB.pickers.filter(p=>!p.archived&&(!q||p.name.toLowerCase().includes(q)));
   const archived=DB.pickers.filter(p=>p.archived);
   document.getElementById('archive-count').textContent=archived.length;
 
-  const el=document.getElementById('picker-db-list');
-  el.innerHTML=active.length?active.map(p=>`
-    <div class="card" style="margin-bottom:10px;padding:14px 16px">
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
-        <div>
-          <div class="font-bold">${p.name}</div>
-          <div class="text-muted text-sm">${fmtMoney(p.rate)}/lb${p.phone?' · '+p.phone:''}</div>
-          ${p.notes?`<div class="text-sm mt8" style="color:var(--muted)">${p.notes}</div>`:''}
+  document.getElementById('picker-db-list').innerHTML=active.length?
+    active.map(p=>{
+      const totalLbs=DB.logs.filter(l=>l.pickerId===p.id).reduce((s,l)=>s+(parseFloat(l.lbs)||0),0);
+      const totalPay=totalLbs*(parseFloat(p.rate)||0);
+      const logCount=DB.logs.filter(l=>l.pickerId===p.id).length;
+      return`<div class="card" style="padding:14px 16px;margin-bottom:10px;cursor:pointer" onclick="openPickerFullHistory('${p.id}')">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">
+          <div style="flex:1;min-width:0">
+            <div class="bold">${p.name}</div>
+            <div class="text-muted text-sm">${fmtMoney(p.rate)}/lb${p.phone?' &middot; '+p.phone:''}</div>
+            <div class="text-xs text-muted" style="margin-top:3px">${logCount} log${logCount!==1?'s':''} &middot; ${totalLbs.toFixed(1)} lbs &middot; ${fmtMoney(totalPay)} earned</div>
+            ${p.notes?`<div class="text-sm" style="margin-top:4px;color:var(--ink2)">${p.notes}</div>`:''}
+          </div>
+          <div style="display:flex;gap:6px;flex-shrink:0" onclick="event.stopPropagation()">
+            <button class="act-btn act-edit" onclick="openEditPicker('${p.id}')">Edit</button>
+            <button class="act-btn act-archive" onclick="archivePicker('${p.id}')">Archive</button>
+          </div>
         </div>
-        <div style="display:flex;gap:6px;flex-shrink:0">
-          <button class="icon-btn" onclick="openEditPicker('${p.id}')">✏️</button>
-          <button class="icon-btn del" onclick="archivePicker('${p.id}')">📦</button>
-        </div>
-      </div>
-    </div>`).join(''):`<div class="empty-state"><span class="ei">👤</span><p>No pickers yet.</p></div>`;
+      </div>`}).join('')
+    :`<div class="empty-state"><span class="ei">—</span><p>${q?'No pickers match your search.':'No active pickers.'}</p></div>`;
 
-  const ab=document.getElementById('archive-body');
-  ab.innerHTML=archived.length?archived.map(p=>`
-    <div class="card" style="margin-bottom:8px;padding:12px 14px;opacity:0.75">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-        <div>
-          <div class="font-bold text-muted">${p.name}</div>
-          <div class="text-sm text-muted">${fmtMoney(p.rate)}/lb</div>
+  document.getElementById('archive-body').innerHTML=archived.length?
+    archived.map(p=>`
+      <div class="card" style="padding:12px 14px;margin-bottom:8px;opacity:0.72">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div>
+            <div class="bold text-muted">${p.name}</div>
+            <div class="text-sm text-muted">${fmtMoney(p.rate)}/lb</div>
+          </div>
+          <div style="display:flex;gap:6px">
+            <button class="act-btn act-restore" onclick="restorePicker('${p.id}')">Restore</button>
+            <button class="act-btn act-del" onclick="deletePicker('${p.id}')">Delete</button>
+          </div>
         </div>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-ghost btn-sm" onclick="restorePicker('${p.id}')">Restore</button>
-          <button class="btn btn-danger btn-sm" onclick="deletePicker('${p.id}')">Delete</button>
-        </div>
-      </div>
-    </div>`).join(''):`<div class="text-sm text-muted" style="padding:10px 0">No archived pickers.</div>`;
+      </div>`).join('')
+    :`<div class="text-sm text-muted" style="padding:10px 0">No archived pickers.</div>`;
 }
 
-function toggleArchiveSection(){
-  const body=document.getElementById('archive-body');
-  const arrow=document.getElementById('archive-arrow');
-  body.classList.toggle('open');
-  arrow.textContent=body.classList.contains('open')?'▴':'▾';
+function toggleArchive(){
+  const b=document.getElementById('archive-body');
+  const a=document.getElementById('archive-arrow');
+  b.classList.toggle('open');
+  a.innerHTML=b.classList.contains('open')?'&#9650;':'&#9660;';
 }
 
 // ════════════════════════════════════════════════════════
-//  PAYROLL
+//  PAYROLL  (date filter + overpayment warnings fixes)
 // ════════════════════════════════════════════════════════
 let _payrollPickerId=null;
 
-function renderPayroll(){
-  const el=document.getElementById('payroll-list-el');
-  const activePickers=DB.pickers.filter(p=>!p.archived);
+function clearPayrollFilter(){
+  document.getElementById('pr-from').value='';
+  document.getElementById('pr-to').value='';
+  renderPayroll();
+}
 
-  let totalOwed=0,totalPaid=0;
-  const rows=activePickers.map(p=>{
-    const logs=DB.logs.filter(l=>l.pickerId===p.id);
+function renderPayroll(){
+  const from=document.getElementById('pr-from').value;
+  const to=document.getElementById('pr-to').value;
+
+  const filteredLogs=DB.logs.filter(l=>(!from||l.date>=from)&&(!to||l.date<=to));
+  const filteredPayments=DB.payments.filter(pm=>(!from||pm.date>=from)&&(!to||pm.date<=to));
+
+  let totalOwing=0,totalPaid=0;
+  const rows=DB.pickers.filter(p=>!p.archived).map(p=>{
+    const logs=from||to?filteredLogs.filter(l=>l.pickerId===p.id):DB.logs.filter(l=>l.pickerId===p.id);
+    const allPayments=DB.payments.filter(pm=>pm.pickerId===p.id); // always all-time paid
     const lbs=logs.reduce((s,l)=>s+(parseFloat(l.lbs)||0),0);
     const earned=lbs*(parseFloat(p.rate)||0);
-    const paid=DB.payments.filter(pm=>pm.pickerId===p.id).reduce((s,pm)=>s+(parseFloat(pm.amount)||0),0);
-    const balance=Math.max(0,earned-paid);
-    totalOwed+=balance;totalPaid+=paid;
+    const paid=allPayments.reduce((s,pm)=>s+(parseFloat(pm.amount)||0),0);
+    const balance=earned-paid;
+    totalOwing+=Math.max(0,balance);
+    totalPaid+=paid;
     return{p,lbs,earned,paid,balance};
   }).filter(r=>r.earned>0||r.paid>0);
 
-  document.getElementById('pr-total-owed').textContent=fmtMoney(totalOwed);
-  document.getElementById('pr-total-paid').textContent=fmtMoney(totalPaid);
+  document.getElementById('pr-owed').textContent=fmtMoney(totalOwing);
+  document.getElementById('pr-paid').textContent=fmtMoney(totalPaid);
 
-  el.innerHTML=rows.length?rows.map(r=>`
-    <div class="card" style="margin-bottom:10px;padding:14px 16px;cursor:pointer" onclick="openPayrollDetail('${r.p.id}')">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
-        <div>
-          <div class="font-bold">${r.p.name}</div>
-          <div class="text-muted text-sm">${r.lbs.toFixed(1)} lbs · earned ${fmtMoney(r.earned)}</div>
+  document.getElementById('payroll-list').innerHTML=rows.length?
+    rows.map(r=>{
+      const overpaid=r.balance<-0.005;
+      const paidFull=Math.abs(r.balance)<=0.005;
+      const badge=overpaid?`<span class="chip chip-warn">Overpaid ${fmtMoney(-r.balance)}</span>`:
+        paidFull?`<span class="chip chip-green">Paid</span>`:
+        `<span class="chip chip-red">${fmtMoney(r.balance)} owing</span>`;
+      return`<div class="card" style="padding:14px 16px;margin-bottom:10px;cursor:pointer" onclick="openPayrollDetail('${r.p.id}')">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+          <div>
+            <div class="bold">${r.p.name}</div>
+            <div class="text-muted text-sm">${fmtLbs(r.lbs)} lbs &middot; earned ${fmtMoney(r.earned)}</div>
+          </div>
+          <div style="text-align:right">${badge}
+            ${r.paid>0?`<div class="text-xs text-muted" style="margin-top:3px">paid ${fmtMoney(r.paid)}</div>`:''}
+          </div>
         </div>
-        <div style="text-align:right">
-          ${r.balance>0.005?`<span class="chip chip-red">${fmtMoney(r.balance)} owing</span>`:
-          `<span class="chip chip-green">Paid ✓</span>`}
-          ${r.paid>0?`<div class="text-sm text-muted mt8">paid ${fmtMoney(r.paid)}</div>`:''}
-        </div>
-      </div>
-    </div>`).join(''):`<div class="empty-state"><span class="ei">💰</span><p>No payroll data yet.</p></div>`;
+      </div>`;
+    }).join('')
+    :`<div class="empty-state"><span class="ei">—</span><p>No payroll data yet.</p></div>`;
 }
 
 function openPayrollDetail(pickerId){
@@ -1548,169 +1899,240 @@ function openPayrollDetail(pickerId){
   const logs=DB.logs.filter(l=>l.pickerId===pickerId);
   const lbs=logs.reduce((s,l)=>s+(parseFloat(l.lbs)||0),0);
   const earned=lbs*(parseFloat(p.rate)||0);
-  const payments=DB.payments.filter(pm=>pm.pickerId===pickerId).sort((a,b)=>b.date.localeCompare(a.date));
+  const payments=[...DB.payments.filter(pm=>pm.pickerId===pickerId)].sort((a,b)=>b.date.localeCompare(a.date));
   const paid=payments.reduce((s,pm)=>s+(parseFloat(pm.amount)||0),0);
-  const balance=Math.max(0,earned-paid);
+  const balance=earned-paid;
 
-  // Show in a sheet-like page
-  const el=document.getElementById('picker-detail-content');
-  pushPage('picker-detail',p.name);
-  el.innerHTML=`
+  _pushPage('picker-detail',p.name);
+  document.getElementById('picker-detail-content').innerHTML=`
     <div class="card">
-      <div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
-        <div class="stat-box"><div class="sv">${lbs.toFixed(1)}</div><div class="sl">lbs</div></div>
+      <div class="stats-grid stats-3 mb0">
+        <div class="stat-box"><div class="sv">${fmtLbs(lbs)}</div><div class="sl">lbs</div></div>
         <div class="stat-box"><div class="sv">${fmtMoney(earned)}</div><div class="sl">earned</div></div>
-        <div class="stat-box"><div class="sv" style="color:${balance>0.005?'var(--danger)':'var(--berry)'}">${fmtMoney(balance)}</div><div class="sl">balance</div></div>
+        <div class="stat-box"><div class="sv" style="color:${balance>0.005?'var(--danger)':balance<-0.005?'var(--warn)':'var(--forest)'}">${fmtMoney(Math.abs(balance))}</div>
+          <div class="sl">${balance>0.005?'balance':balance<-0.005?'overpaid':'settled'}</div></div>
       </div>
     </div>
-    <button class="btn-add" onclick="openPaymentSheet()">＋ Log Payment</button>
+    <button class="btn-add" onclick="openPaymentSheet()">+ Log Payment</button>
     <div class="sec-hdr"><h3>Payment History</h3></div>
     <div class="card">
       ${payments.length?payments.map(pm=>`
         <div class="pay-row">
-          <div><div class="pr-date">${formatDateNice(pm.date)}</div><div class="pr-note">${pm.notes||'—'}</div></div>
-          <div class="pr-amt">${fmtMoney(pm.amount)}</div>
-        </div>`).join(''):`<div class="text-muted text-sm" style="padding:8px 0">No payments yet.</div>`}
+          <div style="flex:1;min-width:0">
+            <div class="text-sm bold">${fmtNice(pm.date)}</div>
+            <div class="text-xs text-muted">${pm.notes||'—'}</div>
+          </div>
+          <div class="pr-amt" style="margin-right:10px">${fmtMoney(pm.amount)}</div>
+          <div style="display:flex;gap:5px;flex-shrink:0" onclick="event.stopPropagation()">
+            <button class="act-btn act-edit" onclick="openEditPayment('${pm.id}')">Edit</button>
+            <button class="act-btn act-del" onclick="deletePayment('${pm.id}')">Delete</button>
+          </div>
+        </div>`).join(''):`<div class="text-sm text-muted" style="padding:8px 0">No payments recorded.</div>`}
     </div>`;
 }
 
+// Payment sheet with balance preview (bug #20 fix) and overpayment warning (bug #1 fix)
 function openPaymentSheet(){
-  const p=DB.pickers.find(x=>x.id===_payrollPickerId);
+  const p=DB.pickers.find(x=>x.id===_payrollPickerId);if(!p)return;
   document.getElementById('pm-picker-id').value=_payrollPickerId;
   document.getElementById('pm-date').value=todayStr();
   document.getElementById('pm-amount').value='';
   document.getElementById('pm-notes').value='';
-  document.getElementById('payment-picker-info').innerHTML=`<div class="font-bold">${p?p.name:''}</div><div class="text-muted text-sm">Recording payment</div>`;
-  openOverlay('overlay-payment');
+  _updatePmPreview(p);
+  openOverlay('ov-payment');
+}
+
+function _getBalance(pickerId){
+  const p=DB.pickers.find(x=>x.id===pickerId);if(!p)return 0;
+  const lbs=DB.logs.filter(l=>l.pickerId===pickerId).reduce((s,l)=>s+(parseFloat(l.lbs)||0),0);
+  const earned=lbs*(parseFloat(p.rate)||0);
+  const paid=DB.payments.filter(pm=>pm.pickerId===pickerId).reduce((s,pm)=>s+(parseFloat(pm.amount)||0),0);
+  return earned-paid;
+}
+
+function _updatePmPreview(p){
+  const balance=_getBalance(p.id);
+  const el=document.getElementById('pm-balance-preview');
+  el.className='balance-preview'+(balance<-0.005?' balance-warn':'');
+  el.innerHTML=`<strong>${p.name}</strong> — Current balance: <strong>${fmtMoney(Math.max(0,balance))}</strong>`;
+}
+
+function updatePaymentPreview(){
+  const pickerId=document.getElementById('pm-picker-id').value;
+  const p=DB.pickers.find(x=>x.id===pickerId);if(!p)return;
+  const balance=_getBalance(pickerId);
+  const amount=parseFloat(document.getElementById('pm-amount').value)||0;
+  const el=document.getElementById('pm-balance-preview');
+  if(amount>balance+0.005){
+    el.className='balance-preview balance-warn';
+    el.innerHTML=`Warning: Payment of ${fmtMoney(amount)} exceeds current balance of ${fmtMoney(Math.max(0,balance))}. <strong>Overpayment: ${fmtMoney(amount-balance)}</strong>`;
+  } else {
+    el.className='balance-preview';
+    el.innerHTML=`<strong>${p.name}</strong> — Balance: <strong>${fmtMoney(Math.max(0,balance))}</strong>&nbsp;&rarr;&nbsp;After payment: <strong>${fmtMoney(Math.max(0,balance-amount))}</strong>`;
+  }
 }
 
 function setPayFull(){
-  const pid=document.getElementById('pm-picker-id').value;
-  const p=DB.pickers.find(x=>x.id===pid);if(!p)return;
-  const logs=DB.logs.filter(l=>l.pickerId===pid);
-  const lbs=logs.reduce((s,l)=>s+(parseFloat(l.lbs)||0),0);
-  const earned=lbs*(parseFloat(p.rate)||0);
-  const paid=DB.payments.filter(pm=>pm.pickerId===pid).reduce((s,pm)=>s+(parseFloat(pm.amount)||0),0);
-  document.getElementById('pm-amount').value=Math.max(0,earned-paid).toFixed(2);
+  const pickerId=document.getElementById('pm-picker-id').value;
+  const balance=_getBalance(pickerId);
+  document.getElementById('pm-amount').value=Math.max(0,balance).toFixed(2);
+  updatePaymentPreview();
 }
 
 function savePayment(){
   const amount=parseFloat(document.getElementById('pm-amount').value);
-  if(!amount||amount<=0){toast('Enter payment amount');return}
+  if(!amount||amount<=0){toast('Enter a payment amount');return}
   DB.payments.push({
     id:uid(),
     pickerId:document.getElementById('pm-picker-id').value,
-    amount,
-    date:document.getElementById('pm-date').value,
+    amount,date:document.getElementById('pm-date').value,
     notes:document.getElementById('pm-notes').value.trim()
   });
-  saveDB();closeOverlay('overlay-payment');
-  openPayrollDetail(_payrollPickerId);
-  renderPayroll();
+  saveDB();closeOverlay('ov-payment');
+  openPayrollDetail(_payrollPickerId);renderPayroll();
   toast('Payment recorded');
+}
+
+function openEditPayment(pmId){
+  const pm=DB.payments.find(x=>x.id===pmId);if(!pm)return;
+  document.getElementById('epm-id').value=pmId;
+  document.getElementById('epm-amount').value=pm.amount;
+  document.getElementById('epm-date').value=pm.date;
+  document.getElementById('epm-notes').value=pm.notes||'';
+  openOverlay('ov-edit-payment');
+}
+
+function saveEditPayment(){
+  const amount=parseFloat(document.getElementById('epm-amount').value);
+  if(!amount||amount<=0){toast('Enter a valid amount');return}
+  const id=document.getElementById('epm-id').value;
+  DB.payments=DB.payments.map(pm=>pm.id===id?{...pm,amount,date:document.getElementById('epm-date').value,notes:document.getElementById('epm-notes').value.trim()}:pm);
+  saveDB();closeOverlay('ov-edit-payment');
+  openPayrollDetail(_payrollPickerId);renderPayroll();
+  toast('Payment updated');
+}
+
+function deletePayment(pmId){
+  showConfirm('Delete Payment?','This payment record will be permanently removed.','Delete',()=>{
+    DB.payments=DB.payments.filter(x=>x.id!==pmId);
+    saveDB();openPayrollDetail(_payrollPickerId);renderPayroll();toast('Payment deleted');
+  });
 }
 
 // ════════════════════════════════════════════════════════
 //  FARM: SEASON
 // ════════════════════════════════════════════════════════
 function shiftYear(d){
-  currentSeasonYear+=d;
-  document.getElementById('year-next-btn').disabled=currentSeasonYear>=new Date().getFullYear();
+  _seasonYear+=d;
   renderFarmSeason();
 }
 
 function renderFarmSeason(){
-  const yr=currentSeasonYear;
+  const yr=_seasonYear;
   document.getElementById('season-year').textContent=yr;
-  const yearLogs=DB.logs.filter(l=>l.date&&l.date.startsWith(yr+'-'));
-
-  let totalLbs=0,rates=[],pickingDays=new Set();
-  yearLogs.forEach(l=>{
-    totalLbs+=parseFloat(l.lbs)||0;
-    pickingDays.add(l.date);
-    const p=DB.pickers.find(x=>x.id===l.pickerId);
-    if(p)rates.push(parseFloat(p.rate)||0);
-  });
-  const totalPay=yearLogs.reduce((s,l)=>{
+  const yLogs=DB.logs.filter(l=>l.date&&l.date.startsWith(yr+'-'));
+  const totalLbs=yLogs.reduce((s,l)=>s+(parseFloat(l.lbs)||0),0);
+  const totalPay=yLogs.reduce((s,l)=>{
     const p=DB.pickers.find(x=>x.id===l.pickerId);
     return s+(parseFloat(l.lbs)||0)*(parseFloat(p?.rate)||0);
   },0);
-  const avgRate=rates.length?rates.reduce((a,b)=>a+b,0)/rates.length:0;
+  const rates=yLogs.map(l=>{const p=DB.pickers.find(x=>x.id===l.pickerId);return parseFloat(p?.rate)||0}).filter(r=>r>0);
+  const avgRate=rates.length?rates.reduce((a,b)=>a+b)/rates.length:0;
+  const days=new Set(yLogs.map(l=>l.date)).size;
 
-  document.getElementById('sn-lbs').textContent=totalLbs.toFixed(0);
+  document.getElementById('sn-lbs').textContent=totalLbs.toFixed(1);
   document.getElementById('sn-pay').textContent=fmtMoney(totalPay);
   document.getElementById('sn-rate').textContent=fmtMoney(avgRate);
-  document.getElementById('sn-days').textContent=pickingDays.size;
+  document.getElementById('sn-days').textContent=days;
+
+  // Sales stats
+  const yrSales=DB.sales.filter(s=>s.date&&s.date.startsWith(yr+'-'));
+  const totalRevenue=yrSales.reduce((s,x)=>(parseFloat(x.lbs)||0)*(parseFloat(x.rate)||0)+s,0);
+  const saleRates=yrSales.map(s=>parseFloat(s.rate)||0).filter(r=>r>0);
+  const avgSaleRate=saleRates.length?saleRates.reduce((a,b)=>a+b)/saleRates.length:0;
+  document.getElementById('sn-sale-val').textContent=fmtMoney(totalRevenue);
+  document.getElementById('sn-sale-rate').textContent=fmtMoney(avgSaleRate);
+
+  // Profit/Loss — already have yrSales
+  const netProfit=totalRevenue-totalPay;
+  document.getElementById('profit-summary').innerHTML=`
+    <div class="profit-row"><span class="text-sm">Revenue (Sales)</span><span class="bold">${fmtMoney(totalRevenue)}</span></div>
+    <div class="profit-row"><span class="text-sm">Labour Cost</span><span class="bold" style="color:var(--danger)">- ${fmtMoney(totalPay)}</span></div>
+    <div class="profit-row"><span class="bold">Net</span><span class="serif bold" style="font-size:1.1rem;color:${netProfit>=0?'var(--forest)':'var(--danger)'}">${fmtMoney(netProfit)}</span></div>`;
 
   // Daily totals
   const byDay={};
-  yearLogs.forEach(l=>{
+  yLogs.forEach(l=>{
     if(!byDay[l.date])byDay[l.date]={lbs:0,pay:0,picks:0};
     const p=DB.pickers.find(x=>x.id===l.pickerId);
     byDay[l.date].lbs+=parseFloat(l.lbs)||0;
     byDay[l.date].pay+=(parseFloat(l.lbs)||0)*(parseFloat(p?.rate)||0);
     byDay[l.date].picks++;
   });
-  const dayEntries=Object.entries(byDay).sort((a,b)=>b[0].localeCompare(a[0]));
-  const dailyEl=document.getElementById('season-daily-list');
-  dailyEl.innerHTML=dayEntries.length?`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:0.85rem">
-    <thead><tr style="border-bottom:2px solid var(--border)">
-      <th style="padding:8px 6px;text-align:left;font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Date</th>
-      <th style="padding:8px 6px;text-align:right;font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Lbs</th>
-      <th style="padding:8px 6px;text-align:right;font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Logs</th>
-      <th style="padding:8px 6px;text-align:right;font-size:0.7rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Pay</th>
-    </tr></thead>
-    <tbody>${dayEntries.map(([d,v])=>`<tr style="border-bottom:1px solid var(--border)">
-      <td style="padding:9px 6px">${formatDateShort(d)}</td>
-      <td style="padding:9px 6px;text-align:right;font-family:'Syne',sans-serif;font-weight:700;color:var(--berry)">${v.lbs.toFixed(1)}</td>
-      <td style="padding:9px 6px;text-align:right;color:var(--muted)">${v.picks}</td>
-      <td style="padding:9px 6px;text-align:right;font-weight:600">${fmtMoney(v.pay)}</td>
-    </tr>`).join('')}</tbody>
-  </table></div>`:`<div class="empty-state"><p>No picking data for ${yr}.</p></div>`;
+  const dayRows=Object.entries(byDay).sort((a,b)=>b[0].localeCompare(a[0]));
+  document.getElementById('season-daily').innerHTML=dayRows.length?
+    `<table style="width:100%;border-collapse:collapse;font-size:0.84rem">
+      <thead><tr style="border-bottom:1.5px solid var(--border)">
+        <th style="text-align:left;padding:7px 5px;font-size:0.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Date</th>
+        <th style="text-align:right;padding:7px 5px;font-size:0.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Lbs</th>
+        <th style="text-align:right;padding:7px 5px;font-size:0.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Entries</th>
+        <th style="text-align:right;padding:7px 5px;font-size:0.68rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted)">Pay</th>
+      </tr></thead>
+      <tbody>${dayRows.map(([d,v])=>`<tr style="border-bottom:1px solid var(--border)">
+        <td style="padding:8px 5px">${fmtShort(d)}</td>
+        <td style="text-align:right;padding:8px 5px;font-family:'Libre Baskerville',serif;font-weight:700;color:var(--forest)">${v.lbs.toFixed(1)}</td>
+        <td style="text-align:right;padding:8px 5px;color:var(--muted)">${v.picks}</td>
+        <td style="text-align:right;padding:8px 5px;font-weight:600">${fmtMoney(v.pay)}</td>
+      </tr>`).join('')}</tbody>
+    </table>`
+    :`<div class="empty-state"><p>No picking data for ${yr}.</p></div>`;
 
   // Top pickers
   const byPicker={};
-  yearLogs.forEach(l=>{
+  yLogs.forEach(l=>{
     if(!byPicker[l.pickerId])byPicker[l.pickerId]={lbs:0,pay:0};
     const p=DB.pickers.find(x=>x.id===l.pickerId);
     byPicker[l.pickerId].lbs+=parseFloat(l.lbs)||0;
     byPicker[l.pickerId].pay+=(parseFloat(l.lbs)||0)*(parseFloat(p?.rate)||0);
   });
-  const medals=['🥇','🥈','🥉'];
-  const sortedPickers=Object.entries(byPicker).sort((a,b)=>b[1].lbs-a[1].lbs);
-  document.getElementById('season-top-pickers').innerHTML=sortedPickers.length?
-    sortedPickers.slice(0,10).map(([pid,v],i)=>{
+  const sorted=Object.entries(byPicker).sort((a,b)=>b[1].lbs-a[1].lbs);
+  // Assign ranks with tie handling
+  let rankNum=0,prevLbs=null,sameCount=0;
+  const rankedPickers=sorted.slice(0,10).map(([pid,v])=>{
+    if(v.lbs!==prevLbs){rankNum+=sameCount+1;sameCount=0;}else{sameCount++;}
+    prevLbs=v.lbs;
+    return{pid,v,rank:rankNum};
+  });
+  const rankCls=(r)=>r===1?'gold':r===2?'silver':r===3?'bronze':'';
+  document.getElementById('season-top').innerHTML=rankedPickers.length?
+    rankedPickers.map(({pid,v,rank})=>{
       const p=DB.pickers.find(x=>x.id===pid);
       return`<div class="rank-item">
-        <div class="rank-num ${i===0?'gold':i===1?'silver':i===2?'bronze':''}">${medals[i]||i+1}</div>
-        <div style="flex:1"><div class="font-bold">${p?p.name:'Unknown'}</div></div>
+        <div class="rank-num ${rankCls(rank)}">${rank}</div>
+        <div style="flex:1"><div class="bold">${p?p.name:'Unknown'}</div></div>
         <div style="text-align:right">
-          <div class="syne font-bold text-berry">${v.lbs.toFixed(1)} lbs</div>
-          <div class="text-sm text-muted">${fmtMoney(v.pay)}</div>
+          <div class="serif bold text-forest">${v.lbs.toFixed(1)} lbs</div>
+          <div class="text-xs text-muted">${fmtMoney(v.pay)}</div>
         </div>
       </div>`;
-    }).join(''):`<div class="empty-state"><p>No picker data for ${yr}.</p></div>`;
+    }).join('')
+    :`<div class="empty-state"><p>No picker data for ${yr}.</p></div>`;
 
-  // Season comparison chart
-  renderSeasonChart();
-}
-
-function renderSeasonChart(){
-  const el=document.getElementById('season-compare-chart');
-  const curYear=new Date().getFullYear();
-  const years=[curYear-2,curYear-1,curYear];
-  const data=years.map(yr=>{
-    const logs=DB.logs.filter(l=>l.date&&l.date.startsWith(yr+'-'));
-    return{yr,lbs:logs.reduce((s,l)=>s+(parseFloat(l.lbs)||0),0)};
-  });
-  const maxLbs=Math.max(...data.map(d=>d.lbs),1);
-  el.innerHTML=`<div class="bar-chart">${data.map(d=>`
+  // Chart
+  const curYr=new Date().getFullYear();
+  const chartYears=[curYr-3,curYr-2,curYr-1,curYr,curYr+1];
+  const chartData=chartYears.map(y=>({
+    yr:y,
+    lbs:DB.logs.filter(l=>l.date&&l.date.startsWith(y+'-')).reduce((s,l)=>s+(parseFloat(l.lbs)||0),0)
+  }));
+  const maxLbs=Math.max(...chartData.map(d=>d.lbs),1);
+  document.getElementById('season-chart').innerHTML=`<div class="bar-chart">${chartData.map(d=>`
     <div class="bar-col">
-      <div class="bar-fill" style="height:${Math.max(4,(d.lbs/maxLbs)*100)}px;background:${d.yr===currentSeasonYear?'var(--berry)':'var(--berry3)'}"></div>
+      <div class="bar-lbl">${d.lbs>0?d.lbs.toFixed(0):'—'}</div>
+      <div class="bar-fill" style="height:${Math.max(4,(d.lbs/maxLbs)*90)}px;background:${d.yr===_seasonYear?'var(--forest)':'var(--forest3)'}"></div>
       <div class="bar-lbl">${d.yr}</div>
-      <div class="bar-lbl" style="color:var(--berry)">${d.lbs>0?d.lbs.toFixed(0)+'lb':'-'}</div>
     </div>`).join('')}</div>
-  <div style="text-align:center;font-size:0.72rem;color:var(--muted);margin-top:8px">Total lbs per season</div>`;
+  <div style="text-align:center;font-size:0.7rem;color:var(--muted);margin-top:8px">Total lbs per season</div>`;
 }
 
 // ════════════════════════════════════════════════════════
@@ -1719,51 +2141,68 @@ function renderSeasonChart(){
 let _saleDetailId=null;
 
 function openAddSaleSheet(editId){
-  if(editId){
-    const s=DB.sales.find(x=>x.id===editId);if(!s)return;
-    document.getElementById('sl-buyer').value=s.buyer;
-    document.getElementById('sl-lbs').value=s.lbs;
-    document.getElementById('sl-rate').value=s.rate;
-    document.getElementById('sl-date').value=s.date;
-    document.getElementById('sl-notes').value=s.notes||'';
-    document.getElementById('sl-edit-id').value=editId;
-    document.getElementById('sale-sheet-title').textContent='Edit Sale';
-  } else {
-    document.getElementById('sl-buyer').value='';
-    document.getElementById('sl-lbs').value='';
-    document.getElementById('sl-rate').value='';
-    document.getElementById('sl-date').value=todayStr();
-    document.getElementById('sl-notes').value='';
-    document.getElementById('sl-edit-id').value='';
-    document.getElementById('sale-sheet-title').textContent='Log Sale';
-  }
-  openOverlay('overlay-add-sale');
+  const s=editId?DB.sales.find(x=>x.id===editId):null;
+  _slSelectedBuyer=s?s.buyer:'';
+  renderSaleBuyerChips();
+  document.getElementById('sl-lbs').value=s?s.lbs:'';
+  document.getElementById('sl-rate').value=s?s.rate:'';
+  document.getElementById('sl-date').value=s?s.date:todayStr();
+  document.getElementById('sl-notes').value=s?s.notes||'':'';
+  document.getElementById('sl-edit-id').value=editId||'';
+  document.getElementById('sl-title').textContent=editId?'Edit Sale':'Log Sale';
+  openOverlay('ov-add-sale');
 }
 
+let _slSelectedBuyer='';
+
+function renderSaleBuyerChips(){
+  const el=document.getElementById('sl-buyer-chips');
+  const emptyEl=document.getElementById('sl-buyer-empty');
+  if(DB.buyers.length){
+    el.innerHTML=DB.buyers.map(b=>`
+      <div class="fert-chip ${_slSelectedBuyer===b.name?'selected':''}" onclick="selectBuyer(${JSON.stringify(b.name)})">${b.name}</div>
+    `).join('');
+    if(emptyEl)emptyEl.style.display='none';
+  } else {
+    el.innerHTML='';
+    if(emptyEl)emptyEl.style.display='block';
+  }
+}
+
+function selectBuyer(name){
+  _slSelectedBuyer=name;
+  renderSaleBuyerChips();
+}
+
+function openBuyersMgrFromSale(){
+  // Open buyers manager but return to sale sheet afterward
+  closeOverlay('ov-add-sale');
+  renderBuyersList();
+  _buyersReturnToSale=true;
+  openOverlay('ov-buyers-list');
+}
+let _buyersReturnToSale=false;
+
 function saveSale(){
-  const buyer=document.getElementById('sl-buyer').value.trim();
+  const buyer=(_slSelectedBuyer||'').trim();
   const lbs=parseFloat(document.getElementById('sl-lbs').value);
   const rate=parseFloat(document.getElementById('sl-rate').value);
-  if(!buyer||!lbs||!rate){toast('Fill in all required fields');return}
+  if(!buyer){toast('Select or enter a buyer');return}
+  if(!lbs||!rate){toast('Fill in all required fields');return}
   const editId=document.getElementById('sl-edit-id').value;
   const entry={id:editId||uid(),buyer,lbs,rate,date:document.getElementById('sl-date').value,notes:document.getElementById('sl-notes').value.trim()};
-  if(editId){DB.sales=DB.sales.map(x=>x.id===editId?entry:x)}
-  else{DB.sales.push(entry)}
-  saveDB();closeOverlay('overlay-add-sale');renderSales();
-  toast(editId?'Sale updated':'Sale logged');
+  if(editId)DB.sales=DB.sales.map(x=>x.id===editId?entry:x);
+  else DB.sales.push(entry);
+  saveDB();closeOverlay('ov-add-sale');renderSales();renderFarmSeason();
+  toast(editId?'Sale updated':'Sale saved');
 }
 
 function renderSales(){
   const sorted=[...DB.sales].sort((a,b)=>b.date.localeCompare(a.date));
-  const el=document.getElementById('sales-list');
-  el.innerHTML=sorted.length?sorted.map(s=>`
-    <div class="sale-item" onclick="openSaleDetail('${s.id}')">
-      <div>
-        <div class="font-bold">${s.buyer}</div>
-        <div class="si-sub">${formatDateShort(s.date)} · ${s.lbs} lbs @ ${fmtMoney(s.rate)}/lb</div>
-      </div>
-      <div class="si-val">${fmtMoney(s.lbs*s.rate)}</div>
-    </div>`).join(''):`<div class="empty-state"><span class="ei">📦</span><p>No sales logged yet.</p></div>`;
+  const totalLbs=sorted.reduce((s,x)=>s+(parseFloat(x.lbs)||0),0);
+  const totalVal=sorted.reduce((s,x)=>s+(parseFloat(x.lbs)||0)*(parseFloat(x.rate)||0),0);
+  document.getElementById('sales-total-lbs').textContent=totalLbs.toFixed(1);
+  document.getElementById('sales-total-val').textContent=fmtMoney(totalVal);
 }
 
 function openSaleDetail(id){
@@ -1771,151 +2210,364 @@ function openSaleDetail(id){
   const s=DB.sales.find(x=>x.id===id);if(!s)return;
   document.getElementById('sale-detail-content').innerHTML=`
     <div style="display:grid;gap:12px">
-      <div><div class="text-muted text-sm">Buyer / Processor</div><div class="font-bold" style="font-size:1.1rem">${s.buyer}</div></div>
+      <div><div class="text-xs text-muted">Buyer / Processor</div><div class="bold" style="font-size:1.05rem">${s.buyer}</div></div>
       <div class="form-row">
-        <div><div class="text-muted text-sm">Date</div><div class="font-bold">${formatDateNice(s.date)}</div></div>
-        <div><div class="text-muted text-sm">Rate</div><div class="font-bold">${fmtMoney(s.rate)}/lb</div></div>
+        <div><div class="text-xs text-muted">Date</div><div class="bold">${fmtNice(s.date)}</div></div>
+        <div><div class="text-xs text-muted">Rate</div><div class="bold">${fmtMoney(s.rate)}/lb</div></div>
       </div>
       <div class="form-row">
-        <div><div class="text-muted text-sm">Pounds Sold</div><div class="syne font-bold" style="font-size:1.3rem;color:var(--berry)">${s.lbs} lbs</div></div>
-        <div><div class="text-muted text-sm">Total Value</div><div class="syne font-bold" style="font-size:1.3rem;color:var(--accent)">${fmtMoney(s.lbs*s.rate)}</div></div>
+        <div><div class="text-xs text-muted">Pounds Sold</div><div class="serif bold" style="font-size:1.2rem;color:var(--forest)">${s.lbs} lbs</div></div>
+        <div><div class="text-xs text-muted">Total Value</div><div class="serif bold" style="font-size:1.2rem;color:var(--gold)">${fmtMoney((parseFloat(s.lbs)||0)*(parseFloat(s.rate)||0))}</div></div>
       </div>
-      ${s.notes?`<div><div class="text-muted text-sm">Notes</div><div>${s.notes}</div></div>`:''}
+      ${s.notes?`<div><div class="text-xs text-muted">Notes</div><div>${s.notes}</div></div>`:''}
     </div>`;
-  openOverlay('overlay-sale-detail');
+  openOverlay('ov-sale-detail');
 }
-
-function editSaleFromDetail(){closeOverlay('overlay-sale-detail');openAddSaleSheet(_saleDetailId)}
+function editSaleFromDetail(){closeOverlay('ov-sale-detail');openAddSaleSheet(_saleDetailId)}
 function deleteSaleFromDetail(){
-  closeOverlay('overlay-sale-detail');
-  showConfirm('Delete Sale?','This sale record will be permanently deleted.','Delete',()=>{
+  closeOverlay('ov-sale-detail');
+  showConfirm('Delete Sale?','This sale record will be permanently removed.','Delete',()=>{
     DB.sales=DB.sales.filter(x=>x.id!==_saleDetailId);
-    saveDB();renderSales();toast('Sale deleted');
+    saveDB();renderSales();renderFarmSeason();toast('Sale deleted');
   });
 }
 
 // ════════════════════════════════════════════════════════
-//  OPS: QUICK SUMMARY
+//  BUYERS MANAGEMENT
+// ════════════════════════════════════════════════════════
+function openBuyersList(){
+  _buyersReturnToSale=false;
+  renderBuyersList();
+  openOverlay('ov-buyers-list');
+}
+
+function renderBuyersList(){
+  const el=document.getElementById('buyers-list-el');
+  el.innerHTML=DB.buyers.length?DB.buyers.map(b=>{
+    const sales=DB.sales.filter(s=>s.buyer===b.name);
+    const total=sales.reduce((s,x)=>(parseFloat(x.lbs)||0)*(parseFloat(x.rate)||0)+s,0);
+    return`<div style="display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);gap:10px;cursor:pointer" onclick="openBuyerDetail('${b.id}')">
+      <div>
+        <div class="bold">${b.name}</div>
+        ${b.notes?`<div class="text-xs text-muted">${b.notes}</div>`:''}
+        <div class="text-xs text-muted">${sales.length} sale${sales.length!==1?'s':''} &middot; ${fmtMoney(total)}</div>
+      </div>
+      <div style="display:flex;gap:6px;flex-shrink:0" onclick="event.stopPropagation()">
+        <button class="act-btn act-edit" onclick="editBuyer('${b.id}')">Edit</button>
+        <button class="act-btn act-del" onclick="deleteBuyer('${b.id}')">Delete</button>
+      </div>
+    </div>`;
+  }).join(''):`<div class="text-sm text-muted" style="padding:8px 0">No buyers added yet.</div>`;
+}
+
+function addBuyer(){
+  const name=document.getElementById('nb-name').value.trim();
+  if(!name){toast('Enter a buyer name');return}
+  if(DB.buyers.find(b=>b.name.toLowerCase()===name.toLowerCase())){toast('Buyer already exists');return}
+  DB.buyers.push({id:uid(),name,notes:document.getElementById('nb-notes').value.trim()});
+  document.getElementById('nb-name').value='';document.getElementById('nb-notes').value='';
+  saveDB();renderBuyersList();renderSaleBuyerChips();toast('Buyer added');
+}
+
+function editBuyer(id){
+  const b=DB.buyers.find(x=>x.id===id);if(!b)return;
+  document.getElementById('eb-id').value=id;
+  document.getElementById('eb-name').value=b.name;
+  document.getElementById('eb-notes').value=b.notes||'';
+  openOverlay('ov-edit-buyer');
+}
+
+function saveEditBuyer(){
+  const id=document.getElementById('eb-id').value;
+  const newName=document.getElementById('eb-name').value.trim();
+  if(!newName){toast('Enter a name');return}
+  const b=DB.buyers.find(x=>x.id===id);if(!b)return;
+  const oldName=b.name;
+  DB.buyers=DB.buyers.map(x=>x.id===id?{...x,name:newName,notes:document.getElementById('eb-notes').value.trim()}:x);
+  DB.sales=DB.sales.map(s=>s.buyer===oldName?{...s,buyer:newName}:s);
+  saveDB();closeOverlay('ov-edit-buyer');renderBuyersList();renderSales();renderSaleBuyerChips();toast('Buyer updated');
+}
+
+function deleteBuyer(id){
+  const b=DB.buyers.find(x=>x.id===id);
+  showConfirm(`Remove ${b?b.name:'buyer'}?`,'The buyer will be removed from your list. Their sales data is preserved.','Remove',()=>{
+    DB.buyers=DB.buyers.filter(x=>x.id!==id);
+    saveDB();renderBuyersList();renderSaleBuyerChips();toast('Buyer removed');
+  });
+}
+
+function openBuyerDetail(id){
+  const b=DB.buyers.find(x=>x.id===id);if(!b)return;
+  const sales=[...DB.sales.filter(s=>s.buyer===b.name)].sort((a,c)=>c.date.localeCompare(a.date));
+  const totalLbs=sales.reduce((s,x)=>s+(parseFloat(x.lbs)||0),0);
+  const totalVal=sales.reduce((s,x)=>s+(parseFloat(x.lbs)||0)*(parseFloat(x.rate)||0),0);
+  const avgRate=totalLbs>0?totalVal/totalLbs:0;
+  document.getElementById('buyer-detail-title').textContent=b.name;
+  document.getElementById('buyer-detail-content').innerHTML=`
+    <div class="stats-grid stats-3" style="margin-bottom:14px">
+      <div class="stat-box"><div class="sv">${totalLbs.toFixed(1)}</div><div class="sl">lbs sold</div></div>
+      <div class="stat-box"><div class="sv">${fmtMoney(totalVal)}</div><div class="sl">total value</div></div>
+      <div class="stat-box"><div class="sv">${fmtMoney(avgRate)}</div><div class="sl">avg $/lb</div></div>
+    </div>
+    ${b.notes?`<div class="text-sm text-muted" style="margin-bottom:12px">${b.notes}</div>`:''}
+    <div class="sec-hdr"><h3>Transaction History</h3></div>
+    ${sales.length?sales.map(s=>`
+      <div class="sale-item" onclick="closeAllBuyerOverlays();openSaleDetail('${s.id}')">
+        <div>
+          <div class="text-sm bold">${fmtNice(s.date)}</div>
+          <div class="si-sub">${s.lbs} lbs @ ${fmtMoney(s.rate)}/lb</div>
+          ${s.notes?`<div class="si-sub">${s.notes}</div>`:''}
+        </div>
+        <div class="si-val">${fmtMoney((parseFloat(s.lbs)||0)*(parseFloat(s.rate)||0))}</div>
+      </div>`).join('')
+    :`<div class="empty-state"><p>No sales with this buyer yet.</p></div>`}`;
+  openOverlay('ov-buyer-detail');
+}
+
+function closeBuyersListSheet(){
+  closeOverlay('ov-buyers-list');
+  if(_buyersReturnToSale){
+    _buyersReturnToSale=false;
+    renderSaleBuyerChips();
+    openOverlay('ov-add-sale');
+  }
+}
+
+function closeAllBuyerOverlays(){
+  ['ov-buyer-detail','ov-buyers-list','ov-sales-history'].forEach(id=>closeOverlay(id));
+}
+
+// ════════════════════════════════════════════════════════
+//  SALES HISTORY SHEET
+// ════════════════════════════════════════════════════════
+function openSalesHistory(){
+  document.getElementById('sh-from').value='';
+  document.getElementById('sh-to').value='';
+  renderSalesHistory();
+  openOverlay('ov-sales-history');
+}
+
+function renderSalesHistory(){
+  const from=document.getElementById('sh-from').value;
+  const to=document.getElementById('sh-to').value;
+  const filtered=[...DB.sales].filter(s=>(!from||s.date>=from)&&(!to||s.date<=to))
+    .sort((a,b)=>b.date.localeCompare(a.date));
+  const totalLbs=filtered.reduce((s,x)=>s+(parseFloat(x.lbs)||0),0);
+  const totalVal=filtered.reduce((s,x)=>s+(parseFloat(x.lbs)||0)*(parseFloat(x.rate)||0),0);
+  document.getElementById('sh-stats').innerHTML=`
+    <div class="stat-box"><div class="sv">${totalLbs.toFixed(1)}</div><div class="sl">lbs sold</div></div>
+    <div class="stat-box"><div class="sv">${fmtMoney(totalVal)}</div><div class="sl">total value</div></div>`;
+  document.getElementById('sh-list').innerHTML=filtered.length?
+    filtered.map(s=>`
+      <div class="sale-item" onclick="closeOverlay('ov-sales-history');openSaleDetail('${s.id}')">
+        <div>
+          <div class="bold">${s.buyer}</div>
+          <div class="si-sub">${fmtNice(s.date)} &middot; ${s.lbs} lbs @ ${fmtMoney(s.rate)}/lb</div>
+        </div>
+        <div class="si-val">${fmtMoney((parseFloat(s.lbs)||0)*(parseFloat(s.rate)||0))}</div>
+      </div>`).join('')
+    :`<div class="empty-state"><span class="ei">—</span><p>No sales in this range.</p></div>`;
+}
+
+// ════════════════════════════════════════════════════════
+//  PICKER FULL HISTORY (from Pickers DB tab)
+// ════════════════════════════════════════════════════════
+function openPickerFullHistory(pickerId){
+  const p=DB.pickers.find(x=>x.id===pickerId);if(!p)return;
+  document.getElementById('ph-title').textContent=p.name+' — History';
+  const logs=[...DB.logs.filter(l=>l.pickerId===pickerId)].sort((a,b)=>b.date.localeCompare(a.date)||b.createdAt-a.createdAt);
+  const payments=[...DB.payments.filter(pm=>pm.pickerId===pickerId)].sort((a,b)=>b.date.localeCompare(a.date));
+  const totalLbs=logs.reduce((s,l)=>s+(parseFloat(l.lbs)||0),0);
+  const totalEarned=totalLbs*(parseFloat(p.rate)||0);
+  const totalPaid=payments.reduce((s,pm)=>s+(parseFloat(pm.amount)||0),0);
+  const balance=totalEarned-totalPaid;
+
+  // Group logs by date
+  const byDate={};
+  logs.forEach(l=>{if(!byDate[l.date])byDate[l.date]=[];byDate[l.date].push(l);});
+  const dateGroups=Object.entries(byDate).sort((a,b)=>b[0].localeCompare(a[0]));
+
+  document.getElementById('ph-content').innerHTML=`
+    <div class="stats-grid stats-3" style="margin-bottom:14px">
+      <div class="stat-box"><div class="sv">${totalLbs.toFixed(1)}</div><div class="sl">lbs total</div></div>
+      <div class="stat-box"><div class="sv">${fmtMoney(totalEarned)}</div><div class="sl">total earned</div></div>
+      <div class="stat-box"><div class="sv" style="color:${balance>0.005?'var(--danger)':balance<-0.005?'var(--warn)':'var(--forest)'}">${fmtMoney(Math.abs(balance))}</div><div class="sl">${balance>0.005?'balance':balance<-0.005?'overpaid':'settled'}</div></div>
+    </div>
+    <div class="sec-hdr" style="margin-bottom:6px"><h3>Picking Logs by Date</h3></div>
+    ${dateGroups.length?dateGroups.map(([date,dayLogs])=>{
+      const dayLbs=dayLogs.reduce((s,l)=>s+(parseFloat(l.lbs)||0),0);
+      return`<div style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1.5px solid var(--border);margin-bottom:6px">
+          <span class="bold text-sm">${fmtNice(date)}</span>
+          <span class="serif bold text-forest text-sm">${dayLbs.toFixed(1)} lbs &middot; ${fmtMoney(dayLbs*(parseFloat(p.rate)||0))}</span>
+        </div>
+        ${dayLogs.map(l=>`<div class="log-item" style="margin-bottom:5px">
+          <div class="li-main">
+            <div class="li-time">${fmt12(l.time)}</div>
+            <div class="li-note">${l.notes||'No notes'}</div>
+          </div>
+          <div class="li-val">${fmtLbs(l.lbs)} lbs</div>
+        </div>`).join('')}
+      </div>`;
+    }).join(''):`<div class="empty-state"><p>No logs yet.</p></div>`}
+    <div class="sec-hdr" style="margin-top:8px;margin-bottom:6px"><h3>Payment History</h3></div>
+    <div class="card">
+      ${payments.length?payments.map(pm=>`
+        <div class="pay-row">
+          <div><div class="text-sm bold">${fmtNice(pm.date)}</div><div class="text-xs text-muted">${pm.notes||'—'}</div></div>
+          <div class="pr-amt">${fmtMoney(pm.amount)}</div>
+        </div>`).join(''):`<div class="text-sm text-muted" style="padding:8px 0">No payments recorded.</div>`}
+    </div>`;
+  openOverlay('ov-picker-history');
+}
+
+// ════════════════════════════════════════════════════════
+//  OPS QUICK SUMMARY (fix #3: always recompute on render)
 // ════════════════════════════════════════════════════════
 function renderOpsQuick(){
   const fertHrs=DB.fertLogs.reduce((s,l)=>s+(parseFloat(l.hours)||0),0);
   const labHrs=DB.labourLogs.reduce((s,l)=>s+(parseFloat(l.hours)||0),0);
-  const totalHrs=fertHrs+labHrs;
-  document.getElementById('ops-quick-summary').innerHTML=`
-    <div class="stats-grid" style="grid-template-columns:1fr 1fr">
-      <div class="stat-box"><div class="sv">${fertHrs.toFixed(1)}h</div><div class="sl">Fert Hours</div></div>
-      <div class="stat-box"><div class="sv">${labHrs.toFixed(1)}h</div><div class="sl">Other Labour</div></div>
+  document.getElementById('ops-summary').innerHTML=`
+    <div class="stats-grid stats-2">
+      <div class="stat-box"><div class="sv">${fertHrs.toFixed(1)}h</div><div class="sl">Fertilizer Hours</div></div>
+      <div class="stat-box"><div class="sv">${labHrs.toFixed(1)}h</div><div class="sl">Labour Hours</div></div>
     </div>
-    <div style="padding:8px 0;font-size:0.88rem;color:var(--muted)">Total hours: <strong style="color:var(--berry)">${totalHrs.toFixed(1)}h</strong></div>`;
+    <div class="profit-row"><span class="text-sm">Total Operations Hours</span>
+      <span class="serif bold">${(fertHrs+labHrs).toFixed(1)}h</span></div>`;
 }
 
 // ════════════════════════════════════════════════════════
-//  OPS: FERTILIZER
+//  FERTILIZER COLORS — more distinct palette
 // ════════════════════════════════════════════════════════
-const FERT_COLORS=['#2d7a42','#52a86a','#c8a84b','#e06c4a','#7c5cbf','#3a8fc4','#d45f8a'];
-let _fertEditId=null,_fertSelectedType=null;
-
+const FERT_COLORS=['#1a5c2a','#c07020','#2060a0','#a02050','#607020','#6030a0','#208080','#c04020'];
 function getFertColor(typeId){
-  const idx=DB.fertTypes.findIndex(t=>t.id===typeId);
-  return FERT_COLORS[idx%FERT_COLORS.length]||'#888';
+  const i=DB.fertTypes.findIndex(t=>t.id===typeId);
+  return i>=0?FERT_COLORS[i%FERT_COLORS.length]:'#888';
+}
+
+// ════════════════════════════════════════════════════════
+//  FERTILIZER PAGE  (calendar with month nav, multi-type/day)
+// ════════════════════════════════════════════════════════
+function shiftFertMonth(d){
+  _fertMonthOffset+=d;
+  renderFertPage();
 }
 
 function renderFertPage(){
-  // Calendar - show current year's months
-  const yr=new Date().getFullYear();
-  const calEl=document.getElementById('fert-calendar');
-  // Simple dot per day that has fert logs
-  const fertDates={};
+  // calendar
+  const now=new Date();
+  const targetDate=new Date(now.getFullYear(),now.getMonth()+_fertMonthOffset,1);
+  const yr=targetDate.getFullYear(),mo=targetDate.getMonth();
+  document.getElementById('fert-month-label').textContent=fmtMonth(yr,mo);
+
+  // build days array for the month
+  const daysInMonth=new Date(yr,mo+1,0).getDate();
+  const firstDow=new Date(yr,mo,1).getDay(); // 0=Sun
+
+  // group fert logs by date
+  const byDate={};
   DB.fertLogs.forEach(l=>{
-    if(!fertDates[l.date])fertDates[l.date]=[];
-    fertDates[l.date].push(l.typeId);
+    if(!byDate[l.date])byDate[l.date]=[];
+    byDate[l.date].push(l);
   });
-  // Show last 60 days as dots
-  const dots=[];
-  for(let i=59;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);dots.push(`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`);}
-  calEl.innerHTML=dots.map(d=>{
-    if(fertDates[d]){
-      const typeId=fertDates[d][0];
-      const col=getFertColor(typeId);
-      return`<div class="dot-day has-data" style="background:${col}" title="${formatDateShort(d)}">${new Date(d+'T12:00').getDate()}</div>`;
+
+  let calHtml='<div class="fert-cal-row" style="margin-bottom:4px">';
+  ['Su','Mo','Tu','We','Th','Fr','Sa'].forEach(d=>{
+    calHtml+=`<div style="width:26px;text-align:center;font-size:0.6rem;font-weight:700;color:var(--muted);font-family:DM Sans,sans-serif">${d}</div>`;
+  });
+  calHtml+='</div><div class="fert-cal-row">';
+  for(let i=0;i<firstDow;i++)calHtml+=`<div class="fcal-day" style="visibility:hidden"></div>`;
+  for(let day=1;day<=daysInMonth;day++){
+    const ds=`${yr}-${p2(mo+1)}-${p2(day)}`;
+    const entries=byDate[ds]||[];
+    if(!entries.length){
+      calHtml+=`<div class="fcal-day empty-day">${day}</div>`;
+    } else {
+      const uniqueTypes=[...new Set(entries.map(e=>e.typeId))];
+      const firstColor=getFertColor(uniqueTypes[0]);
+      if(uniqueTypes.length===1){
+        calHtml+=`<div class="fcal-day has-single" style="background:${firstColor};color:white;border:1px solid ${firstColor}" 
+          title="${DB.fertTypes.find(t=>t.id===uniqueTypes[0])?.name||'?'}">${day}</div>`;
+      } else {
+        // multi-type: split square vertically
+        const grad=uniqueTypes.slice(0,4).map((tid,i,arr)=>{
+          const c=getFertColor(tid);
+          const pct=100/arr.length;
+          return`${c} ${i*pct}%, ${c} ${(i+1)*pct}%`;
+        }).join(', ');
+        calHtml+=`<div class="fcal-day has-multi" style="background:linear-gradient(to right,${grad});color:white;font-size:0.55rem;border:1px solid rgba(0,0,0,0.2)">${day}</div>`;
+      }
     }
-    return`<div class="dot-day empty">${new Date(d+'T12:00').getDate()}</div>`;
-  }).join('');
+  }
+  calHtml+='</div>';
+  document.getElementById('fert-calendar').innerHTML=calHtml;
 
   // Legend
-  const legEl=document.getElementById('fert-legend');
-  legEl.innerHTML=DB.fertTypes.map((t,i)=>`<span style="display:flex;align-items:center;gap:4px;font-size:0.72rem;color:var(--muted)"><span style="width:12px;height:12px;border-radius:3px;background:${FERT_COLORS[i%FERT_COLORS.length]};display:inline-block"></span>${t.name}</span>`).join('');
+  document.getElementById('fert-legend').innerHTML=DB.fertTypes.map((t,i)=>
+    `<span style="display:flex;align-items:center;gap:5px;font-size:0.73rem;color:var(--ink2)">
+      <span style="width:11px;height:11px;border-radius:2px;background:${FERT_COLORS[i%FERT_COLORS.length]};flex-shrink:0;display:inline-block"></span>${t.name}
+    </span>`).join('');
 
   // Log list
   const logs=[...DB.fertLogs].sort((a,b)=>b.date.localeCompare(a.date));
-  const el=document.getElementById('fert-log-list');
-  el.innerHTML=logs.length?logs.map(l=>{
+  document.getElementById('fert-log-list').innerHTML=logs.length?logs.map(l=>{
     const t=DB.fertTypes.find(x=>x.id===l.typeId);
     const col=getFertColor(l.typeId);
     return`<div class="log-item" onclick="openFertDetail('${l.id}')">
-      <div style="width:6px;height:40px;border-radius:3px;background:${col};flex-shrink:0"></div>
+      <div style="width:5px;min-height:36px;border-radius:3px;background:${col};flex-shrink:0"></div>
       <div class="li-main">
-        <div class="li-time">${formatDateShort(l.date)}${l.hours?` · ${l.hours}h`:''}</div>
-        <div class="li-note">${t?t.name:'Unknown'}${l.amount?' · '+l.amount:''}</div>
+        <div class="li-time">${fmtShort(l.date)}${l.hours?` &middot; ${l.hours}h`:''}</div>
+        <div class="li-note">${t?t.name:'Unknown'}${l.amount?' &middot; '+l.amount:''}</div>
       </div>
       <div class="li-actions" onclick="event.stopPropagation()">
-        <button class="icon-btn" onclick="openFertEdit('${l.id}')">✏️</button>
-        <button class="icon-btn del" onclick="confirmDeleteFert('${l.id}')">🗑</button>
+        <button class="act-btn act-edit" onclick="openFertEdit('${l.id}')">Edit</button>
+        <button class="act-btn act-del" onclick="confirmDelFert('${l.id}')">Delete</button>
       </div>
     </div>`;
-  }).join(''):`<div class="empty-state"><span class="ei">🌿</span><p>No fertilization logs yet.</p></div>`;
+  }).join(''):`<div class="empty-state"><span class="ei">—</span><p>No fertilization logs yet.</p></div>`;
 }
 
+let _fertSelectedType=null;
 function openFertSheet(editId){
-  _fertEditId=editId||null;
   _fertSelectedType=null;
+  const l=editId?DB.fertLogs.find(x=>x.id===editId):null;
+  if(l)_fertSelectedType=l.typeId;
   renderFertTypeChips();
-  document.getElementById('fe-date').value=editId?(DB.fertLogs.find(x=>x.id===editId)?.date||todayStr()):todayStr();
-  document.getElementById('fe-amount').value='';
-  document.getElementById('fe-hours').value='';
-  document.getElementById('fe-notes').value='';
+  document.getElementById('fe-date').value=l?l.date:todayStr();
+  document.getElementById('fe-amount').value=l?l.amount||'':'';
+  document.getElementById('fe-hours').value=l?l.hours||'':'';
+  document.getElementById('fe-notes').value=l?l.notes||'':'';
   document.getElementById('fe-edit-id').value=editId||'';
-  if(editId){
-    const l=DB.fertLogs.find(x=>x.id===editId);if(l){
-      _fertSelectedType=l.typeId;
-      document.getElementById('fe-date').value=l.date;
-      document.getElementById('fe-amount').value=l.amount||'';
-      document.getElementById('fe-hours').value=l.hours||'';
-      document.getElementById('fe-notes').value=l.notes||'';
-      renderFertTypeChips();
-    }
-  }
   document.getElementById('fert-sheet-title').textContent=editId?'Edit Fertilization':'Log Fertilization';
-  openOverlay('overlay-fert');
+  openOverlay('ov-fert');
 }
 
 function renderFertTypeChips(){
-  const el=document.getElementById('fert-type-chips');
-  el.innerHTML=DB.fertTypes.length?DB.fertTypes.map(t=>`
-    <div class="fert-chip ${_fertSelectedType===t.id?'selected':''}" onclick="selectFertType('${t.id}')">${t.name}</div>
-  `).join(''):`<div class="text-sm text-muted">No fertilizer types added yet.</div>`;
+  document.getElementById('fert-type-chips').innerHTML=DB.fertTypes.length?
+    DB.fertTypes.map((t,i)=>`<div class="fert-chip ${_fertSelectedType===t.id?'selected':''}" onclick="selectFert('${t.id}')">
+      <div class="fert-dot" style="background:${FERT_COLORS[i%FERT_COLORS.length]}"></div>${t.name}</div>`
+    ).join(''):`<div class="text-sm text-muted">No types added yet.</div>`;
 }
 
-function selectFertType(id){_fertSelectedType=id;renderFertTypeChips()}
+function selectFert(id){_fertSelectedType=id;renderFertTypeChips()}
 
 function saveFertLog(){
   if(!_fertSelectedType){toast('Select a fertilizer type');return}
   const editId=document.getElementById('fe-edit-id').value;
   const entry={
-    id:editId||uid(),
-    typeId:_fertSelectedType,
+    id:editId||uid(),typeId:_fertSelectedType,
     date:document.getElementById('fe-date').value,
     amount:document.getElementById('fe-amount').value.trim(),
     hours:parseFloat(document.getElementById('fe-hours').value)||0,
     notes:document.getElementById('fe-notes').value.trim()
   };
-  if(editId){DB.fertLogs=DB.fertLogs.map(x=>x.id===editId?entry:x)}
-  else{DB.fertLogs.push(entry)}
-  saveDB();closeOverlay('overlay-fert');renderFertPage();toast('Saved');
+  if(editId)DB.fertLogs=DB.fertLogs.map(x=>x.id===editId?entry:x);
+  else DB.fertLogs.push(entry);
+  saveDB();closeOverlay('ov-fert');renderFertPage();toast('Saved');
 }
 
 function openFertEdit(id){openFertSheet(id)}
-function confirmDeleteFert(id){
+function confirmDelFert(id){
   showConfirm('Delete Log?','Remove this fertilization record?','Delete',()=>{
     DB.fertLogs=DB.fertLogs.filter(x=>x.id!==id);
     saveDB();renderFertPage();toast('Deleted');
@@ -1925,25 +2577,27 @@ function confirmDeleteFert(id){
 function openFertDetail(id){
   const l=DB.fertLogs.find(x=>x.id===id);if(!l)return;
   const t=DB.fertTypes.find(x=>x.id===l.typeId);
-  toast(`${t?t.name:'?'} · ${formatDateShort(l.date)}${l.hours?' · '+l.hours+'h':''}`);
+  const info=[t?t.name:'?',fmtNice(l.date),l.amount,l.hours?l.hours+'h':null,l.notes].filter(Boolean).join(' · ');
+  toast(info);
 }
 
 function openFertTypeManager(){
-  closeOverlay('overlay-fert');
+  closeOverlay('ov-fert');
   renderFertTypesList();
-  openOverlay('overlay-fert-types');
+  openOverlay('ov-fert-types');
 }
 
 function renderFertTypesList(){
-  const el=document.getElementById('fert-types-list');
-  el.innerHTML=DB.fertTypes.length?DB.fertTypes.map((t,i)=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:10px">
-      <div style="display:flex;align-items:center;gap:8px">
-        <span style="width:12px;height:12px;border-radius:3px;background:${FERT_COLORS[i%FERT_COLORS.length]};display:inline-block;flex-shrink:0"></span>
-        <div><div class="font-bold text-sm">${t.name}</div>${t.notes?`<div class="text-sm text-muted">${t.notes}</div>`:''}</div>
-      </div>
-      <button class="icon-btn del" onclick="deleteFertType('${t.id}')">🗑</button>
-    </div>`).join(''):`<div class="text-sm text-muted" style="padding:8px 0">No types yet.</div>`;
+  document.getElementById('fert-types-list').innerHTML=DB.fertTypes.length?
+    DB.fertTypes.map((t,i)=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:10px">
+        <div style="display:flex;align-items:center;gap:8px">
+          <span style="width:11px;height:11px;border-radius:2px;background:${FERT_COLORS[i%FERT_COLORS.length]};flex-shrink:0;display:inline-block"></span>
+          <div><div class="bold text-sm">${t.name}</div>${t.notes?`<div class="text-xs text-muted">${t.notes}</div>`:''}</div>
+        </div>
+        <button class="act-btn act-del" onclick="delFertType('${t.id}')">Delete</button>
+      </div>`).join('')
+    :`<div class="text-sm text-muted" style="padding:8px 0">No types yet.</div>`;
 }
 
 function addFertType(){
@@ -1954,88 +2608,73 @@ function addFertType(){
   saveDB();renderFertTypesList();toast('Type added');
 }
 
-function deleteFertType(id){
-  showConfirm('Delete Type?','This fertilizer type will be removed.','Delete',()=>{
+function delFertType(id){
+  showConfirm('Delete Type?','Remove this fertilizer type?','Delete',()=>{
     DB.fertTypes=DB.fertTypes.filter(x=>x.id!==id);
     saveDB();renderFertTypesList();toast('Deleted');
   });
 }
 
 // ════════════════════════════════════════════════════════
-//  OPS: LABOUR
+//  LABOUR PAGE
 // ════════════════════════════════════════════════════════
-let _labEditId=null,_labSelectedType=null;
+let _labSelectedType=null;
 
 function renderLabourPage(){
   const fertHrs=DB.fertLogs.reduce((s,l)=>s+(parseFloat(l.hours)||0),0);
   const labHrs=DB.labourLogs.reduce((s,l)=>s+(parseFloat(l.hours)||0),0);
-  const total=fertHrs+labHrs;
+  document.getElementById('lab-hrs').textContent=(fertHrs+labHrs).toFixed(1)+'h';
+  document.getElementById('lab-tasks-count').textContent=DB.labourLogs.length+DB.fertLogs.length;
 
-  document.getElementById('lab-total-hrs').textContent=total.toFixed(1)+'h';
-  document.getElementById('lab-tasks').textContent=DB.labourLogs.length+DB.fertLogs.length;
-
-  // By type breakdown
   const byType={};
-  if(fertHrs>0)byType['Fertilization']={hrs:fertHrs,color:'var(--berry3)'};
+  if(fertHrs>0)byType['Fertilization']={hrs:fertHrs};
   DB.labourLogs.forEach(l=>{
     const t=DB.labourTypes.find(x=>x.id===l.typeId);
-    const name=t?t.name:'Other';
-    if(!byType[name])byType[name]={hrs:0,color:'var(--accent)'};
-    byType[name].hrs+=parseFloat(l.hours)||0;
+    const nm=t?t.name:'Other';
+    if(!byType[nm])byType[nm]={hrs:0};
+    byType[nm].hrs+=parseFloat(l.hours)||0;
   });
-  document.getElementById('labour-by-type').innerHTML=Object.entries(byType).map(([name,v])=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border)">
-      <span class="text-sm font-bold">${name}</span>
-      <span class="syne font-bold text-berry">${v.hrs.toFixed(1)}h</span>
-    </div>`).join('');
+  document.getElementById('labour-breakdown').innerHTML=Object.entries(byType).map(([nm,v])=>
+    `<div class="profit-row"><span class="text-sm">${nm}</span><span class="serif bold text-forest">${v.hrs.toFixed(1)}h</span></div>`
+  ).join('');
 
-  // Log list
   const logs=[...DB.labourLogs].sort((a,b)=>b.date.localeCompare(a.date));
-  const el=document.getElementById('labour-log-list');
-  el.innerHTML=logs.length?logs.map(l=>{
+  document.getElementById('labour-log-list').innerHTML=logs.length?logs.map(l=>{
     const t=DB.labourTypes.find(x=>x.id===l.typeId);
     return`<div class="log-item" onclick="openLabourDetail('${l.id}')">
       <div class="li-main">
-        <div class="li-time">${formatDateShort(l.date)}</div>
-        <div class="li-note">${t?t.name:'Unknown'}${l.notes?' · '+l.notes:''}</div>
+        <div class="li-time">${fmtShort(l.date)}</div>
+        <div class="li-note">${t?t.name:'Unknown'}${l.notes?' &middot; '+l.notes:''}</div>
       </div>
-      <div class="li-lbs">${l.hours}h</div>
+      <div class="li-val">${l.hours}h</div>
       <div class="li-actions" onclick="event.stopPropagation()">
-        <button class="icon-btn" onclick="openLabourEdit('${l.id}')">✏️</button>
-        <button class="icon-btn del" onclick="confirmDeleteLabour('${l.id}')">🗑</button>
+        <button class="act-btn act-edit" onclick="openLabourEdit('${l.id}')">Edit</button>
+        <button class="act-btn act-del" onclick="confirmDelLabour('${l.id}')">Delete</button>
       </div>
     </div>`;
-  }).join(''):`<div class="empty-state"><span class="ei">🔧</span><p>No labour logs yet.</p></div>`;
+  }).join(''):`<div class="empty-state"><span class="ei">—</span><p>No labour logs yet.</p></div>`;
 }
 
 function openLabourSheet(editId){
-  _labEditId=editId||null;_labSelectedType=null;
+  _labSelectedType=null;
+  const l=editId?DB.labourLogs.find(x=>x.id===editId):null;
+  if(l)_labSelectedType=l.typeId;
   renderLabourTypeChips();
-  document.getElementById('la-date').value=editId?(DB.labourLogs.find(x=>x.id===editId)?.date||todayStr()):todayStr();
-  document.getElementById('la-hours').value='';
-  document.getElementById('la-notes').value='';
+  document.getElementById('la-date').value=l?l.date:todayStr();
+  document.getElementById('la-hours').value=l?l.hours||'':'';
+  document.getElementById('la-notes').value=l?l.notes||'':'';
   document.getElementById('la-edit-id').value=editId||'';
-  if(editId){
-    const l=DB.labourLogs.find(x=>x.id===editId);if(l){
-      _labSelectedType=l.typeId;
-      document.getElementById('la-date').value=l.date;
-      document.getElementById('la-hours').value=l.hours||'';
-      document.getElementById('la-notes').value=l.notes||'';
-      renderLabourTypeChips();
-    }
-  }
   document.getElementById('lab-sheet-title').textContent=editId?'Edit Labour':'Log Labour';
-  openOverlay('overlay-labour');
+  openOverlay('ov-labour');
 }
 
 function renderLabourTypeChips(){
-  const el=document.getElementById('labour-type-chips');
-  el.innerHTML=DB.labourTypes.length?DB.labourTypes.map(t=>`
-    <div class="fert-chip ${_labSelectedType===t.id?'selected':''}" onclick="selectLabourType('${t.id}')">${t.name}</div>
-  `).join(''):`<div class="text-sm text-muted">No task types added yet.</div>`;
+  document.getElementById('labour-type-chips').innerHTML=DB.labourTypes.length?
+    DB.labourTypes.map(t=>`<div class="fert-chip ${_labSelectedType===t.id?'selected':''}" onclick="selectLabour('${t.id}')">${t.name}</div>`
+    ).join(''):`<div class="text-sm text-muted">No task types added yet.</div>`;
 }
 
-function selectLabourType(id){_labSelectedType=id;renderLabourTypeChips()}
+function selectLabour(id){_labSelectedType=id;renderLabourTypeChips()}
 
 function saveLabourLog(){
   if(!_labSelectedType){toast('Select a task type');return}
@@ -2043,24 +2682,22 @@ function saveLabourLog(){
   if(!hours||hours<=0){toast('Enter hours');return}
   const editId=document.getElementById('la-edit-id').value;
   const entry={
-    id:editId||uid(),
-    typeId:_labSelectedType,
-    date:document.getElementById('la-date').value,
-    hours,
+    id:editId||uid(),typeId:_labSelectedType,
+    date:document.getElementById('la-date').value,hours,
     notes:document.getElementById('la-notes').value.trim()
   };
-  if(editId){DB.labourLogs=DB.labourLogs.map(x=>x.id===editId?entry:x)}
-  else{DB.labourLogs.push(entry)}
-  saveDB();closeOverlay('overlay-labour');renderLabourPage();toast('Saved');
+  if(editId)DB.labourLogs=DB.labourLogs.map(x=>x.id===editId?entry:x);
+  else DB.labourLogs.push(entry);
+  saveDB();closeOverlay('ov-labour');renderLabourPage();toast('Saved');
 }
 
 function openLabourEdit(id){openLabourSheet(id)}
 function openLabourDetail(id){
   const l=DB.labourLogs.find(x=>x.id===id);if(!l)return;
   const t=DB.labourTypes.find(x=>x.id===l.typeId);
-  toast(`${t?t.name:'?'} · ${formatDateShort(l.date)} · ${l.hours}h`);
+  toast(`${t?t.name:'?'} · ${fmtShort(l.date)} · ${l.hours}h`);
 }
-function confirmDeleteLabour(id){
+function confirmDelLabour(id){
   showConfirm('Delete Log?','Remove this labour record?','Delete',()=>{
     DB.labourLogs=DB.labourLogs.filter(x=>x.id!==id);
     saveDB();renderLabourPage();toast('Deleted');
@@ -2068,18 +2705,19 @@ function confirmDeleteLabour(id){
 }
 
 function openLabourTypeManager(){
-  closeOverlay('overlay-labour');
+  closeOverlay('ov-labour');
   renderLabourTypesList();
-  openOverlay('overlay-labour-types');
+  openOverlay('ov-labour-types');
 }
 
 function renderLabourTypesList(){
-  const el=document.getElementById('labour-types-list');
-  el.innerHTML=DB.labourTypes.length?DB.labourTypes.map(t=>`
-    <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:10px">
-      <div><div class="font-bold text-sm">${t.name}</div>${t.notes?`<div class="text-sm text-muted">${t.notes}</div>`:''}</div>
-      <button class="icon-btn del" onclick="deleteLabourType('${t.id}')">🗑</button>
-    </div>`).join(''):`<div class="text-sm text-muted" style="padding:8px 0">No task types yet.</div>`;
+  document.getElementById('labour-types-list').innerHTML=DB.labourTypes.length?
+    DB.labourTypes.map(t=>`
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);gap:10px">
+        <div><div class="bold text-sm">${t.name}</div>${t.notes?`<div class="text-xs text-muted">${t.notes}</div>`:''}</div>
+        <button class="act-btn act-del" onclick="delLabourType('${t.id}')">Delete</button>
+      </div>`).join('')
+    :`<div class="text-sm text-muted" style="padding:8px 0">No task types yet.</div>`;
 }
 
 function addLabourType(){
@@ -2090,8 +2728,8 @@ function addLabourType(){
   saveDB();renderLabourTypesList();toast('Task type added');
 }
 
-function deleteLabourType(id){
-  showConfirm('Delete Task?','Remove this task type?','Delete',()=>{
+function delLabourType(id){
+  showConfirm('Delete Task Type?','Remove this task type?','Delete',()=>{
     DB.labourTypes=DB.labourTypes.filter(x=>x.id!==id);
     saveDB();renderLabourTypesList();toast('Deleted');
   });
@@ -2101,12 +2739,14 @@ function deleteLabourType(id){
 //  INIT
 // ════════════════════════════════════════════════════════
 loadDB();
-populateLogEntryPickers();
+populateLogPickers();
+document.getElementById('le-date').value=todayStr();
+document.getElementById('le-time').value=nowTime();
 renderDayView();
 renderPickerDB();
-document.getElementById('day-next-btn').disabled=true;
-document.getElementById('year-next-btn').disabled=currentSeasonYear>=new Date().getFullYear();
-document.getElementById('season-year').textContent=currentSeasonYear;
+renderPayroll();
+renderSales();
+document.getElementById('season-year').textContent=_seasonYear;
 </script>
 </body>
 </html>
